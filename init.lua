@@ -102,7 +102,7 @@ vim.g.have_nerd_font = false
 vim.o.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.o.relativenumber = true
+vim.o.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.o.mouse = 'a'
@@ -671,7 +671,25 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        -- clangd = {},
+        clangd = {
+          -- Command and arguments to start the server.
+          cmd = { vim.fn.expand '~/.nix-profile/bin/clangd' },
+
+          -- Filetypes to automatically attach to.
+          filetypes = { 'c', 'cpp', 'objc', 'objcpp' },
+
+          -- Sets the "root directory" to the parent directory of the file in the
+          -- current buffer that contains either a ".luarc.json" or a
+          -- ".luarc.jsonc" file. Files that share a root directory will reuse
+          -- the connection to the same LSP server.
+          -- Nested lists indicate equal priority, see |vim.lsp.Config|.
+          root_markers = { '.git' },
+
+          -- Specific settings to send to the server. The schema for this is
+          -- defined by the server. For example the schema for lua-language-server
+          -- can be found here https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json
+          settings = {},
+        },
         -- gopls = {},
         -- pyright = {},
         -- rust_analyzer = {},
