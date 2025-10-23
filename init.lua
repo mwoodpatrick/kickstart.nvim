@@ -766,6 +766,8 @@ require('lazy').setup({
           filetypes = { 'bash', 'sh' },
           root_markers = { '.git' },
         },
+        taplo = {},
+        jsonls = {},
       }
 
       -- Ensure the servers and tools above are installed
