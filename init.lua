@@ -131,6 +131,9 @@ vim.o.smartcase = true
 -- Keep signcolumn on by default
 vim.o.signcolumn = 'yes'
 
+-- Highlight column 80
+vim.o.colorcolumn = '80'
+
 -- Decrease update time
 vim.o.updatetime = 250
 
@@ -691,7 +694,25 @@ require('lazy').setup({
           settings = {},
         },
         -- gopls = {},
-        -- pyright = {},
+        pyright = {
+          -- Command and arguments to start the server.
+          cmd = { vim.fn.expand '~/.nix-profile/bin/pylsp' },
+
+          -- Filetypes to automatically attach to.
+          filetypes = { 'python' },
+
+          -- Sets the "root directory" to the parent directory of the file in the
+          -- current buffer that contains either a ".luarc.json" or a
+          -- ".luarc.jsonc" file. Files that share a root directory will reuse
+          -- the connection to the same LSP server.
+          -- Nested lists indicate equal priority, see |vim.lsp.Config|.
+          root_markers = { '.git' },
+
+          -- Specific settings to send to the server. The schema for this is
+          -- defined by the server. For example the schema for lua-language-server
+          -- can be found here https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json
+          settings = {},
+        },
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -715,6 +736,35 @@ require('lazy').setup({
               -- diagnostics = { disable = { 'missing-fields' } },
             },
           },
+        },
+        nil_ls = {
+          -- Command and arguments to start the server.
+          cmd = { vim.fn.expand '~/.nix-profile/bin/nil' },
+
+          -- Filetypes to automatically attach to.
+          filetypes = { 'nix' },
+
+          -- Sets the "root directory" to the parent directory of the file in the
+          -- current buffer that contains either a ".luarc.json" or a
+          -- ".luarc.jsonc" file. Files that share a root directory will reuse
+          -- the connection to the same LSP server.
+          -- Nested lists indicate equal priority, see |vim.lsp.Config|.
+          root_markers = { 'flake.nix', '.git' },
+
+          -- Specific settings to send to the server. The schema for this is
+          -- defined by the server. For example the schema for lua-language-server
+          -- can be found here https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json
+          settings = {},
+        },
+        bashls = {
+          cmd = { 'bash-language-server', 'start' },
+          settings = {
+            bashIde = {
+              globPattern = vim.env.GLOB_PATTERN or '*@(.sh|.inc|.bash|.command)',
+            },
+          },
+          filetypes = { 'bash', 'sh' },
+          root_markers = { '.git' },
         },
       }
 
