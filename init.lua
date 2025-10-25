@@ -151,6 +151,20 @@ vim.o.timeoutlen = 300
 -- Configure how new splits should be opened
 vim.o.splitright = true
 vim.o.splitbelow = true
+vim.o.virtualedit = "block"
+
+-- Diagnostics
+-- show multi-line error messages directly beneath the problematic code line.
+vim.diagnostic.config({
+  -- Use the default configuration
+  -- virtual_lines = true
+
+  -- Alternatively, customize specific options
+  virtual_lines = {
+    -- Only show virtual line diagnostics for the current cursor line
+    current_line = true,
+  },
+})
 
 -- Sets how neovim will display certain whitespace characters in the editor.
 --  See `:help 'list'`
@@ -755,25 +769,25 @@ require('lazy').setup({
 	            },
 	          },
 	        },
-	        nil_ls = {
+	        -- nil_ls = {
 	          -- Command and arguments to start the server.
-	          cmd = { vim.fn.expand '~/.nix-profile/bin/nil' },
+	          -- cmd = { vim.fn.expand '~/.nix-profile/bin/nil' },
 	
 	          -- Filetypes to automatically attach to.
-	          filetypes = { 'nix' },
+	          -- filetypes = { 'nix' },
 	
 	          -- Sets the "root directory" to the parent directory of the file in the
 	          -- current buffer that contains either a ".luarc.json" or a
 	          -- ".luarc.jsonc" file. Files that share a root directory will reuse
 	          -- the connection to the same LSP server.
 	          -- Nested lists indicate equal priority, see |vim.lsp.Config|.
-	          root_markers = { 'flake.nix', '.git' },
+	          -- root_markers = { 'flake.nix', '.git' },
 	
 	          -- Specific settings to send to the server. The schema for this is
 	          -- defined by the server. For example the schema for lua-language-server
 	          -- can be found here https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json
-	          settings = {},
-	        },
+	        --   settings = {},
+	        -- },
 	        bashls = {
 	          cmd = { 'bash-language-server', 'start' },
 	          settings = {
