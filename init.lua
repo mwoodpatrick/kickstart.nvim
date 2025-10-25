@@ -84,6 +84,14 @@ I hope you enjoy your Neovim journey,
 P.S. You can delete this when you're done too. It's your config now! :)
 --]]
 
+local config_dir = vim.fn.stdpath("config")
+local state_dir = vim.fn.stdpath("state") .. "/startup_logs"
+local ts = os.date("%Y-%m-%d_%H-%M-%S")
+local log_file = string.format("%s/nvim_pack_diagnostics_%s.log", state_dir, ts)
+-- print("Using nvim config:"..config_dir.."logs:"..state_dir)
+-- vim.fn.input("Press ENTER to acknowledge: ")
+-- vim.notify("pkglog logfile:" .. log_file , vim.log.levels.INFO)
+
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
@@ -674,100 +682,104 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        clangd = {
-          -- Command and arguments to start the server.
-          cmd = { vim.fn.expand '~/.nix-profile/bin/clangd' },
-
-          -- Filetypes to automatically attach to.
-          filetypes = { 'c', 'cpp', 'objc', 'objcpp' },
-
-          -- Sets the "root directory" to the parent directory of the file in the
-          -- current buffer that contains either a ".luarc.json" or a
-          -- ".luarc.jsonc" file. Files that share a root directory will reuse
-          -- the connection to the same LSP server.
-          -- Nested lists indicate equal priority, see |vim.lsp.Config|.
-          root_markers = { '.git' },
-
-          -- Specific settings to send to the server. The schema for this is
-          -- defined by the server. For example the schema for lua-language-server
-          -- can be found here https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json
-          settings = {},
+        non_mason = {
+	        clangd = {
+	          -- Command and arguments to start the server.
+	          cmd = { '/home/utils/llvm-20.1.0/bin/clangd' },
+	
+	          -- Filetypes to automatically attach to.
+	          -- filetypes = { 'c', 'cpp', 'objc', 'objcpp' },
+	
+	          -- Sets the "root directory" to the parent directory of the file in the
+	          -- current buffer that contains either a ".luarc.json" or a
+	          -- ".luarc.jsonc" file. Files that share a root directory will reuse
+	          -- the connection to the same LSP server.
+	          -- Nested lists indicate equal priority, see |vim.lsp.Config|.
+	          -- root_markers = { '.git' },
+	
+	          -- Specific settings to send to the server. The schema for this is
+	          -- defined by the server. For example the schema for lua-language-server
+	          -- can be found here https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json
+	          settings = {},
+	        },
         },
-        -- gopls = {},
-        pyright = {
-          -- Command and arguments to start the server.
-          cmd = { vim.fn.expand '~/.nix-profile/bin/pylsp' },
-
-          -- Filetypes to automatically attach to.
-          filetypes = { 'python' },
-
-          -- Sets the "root directory" to the parent directory of the file in the
-          -- current buffer that contains either a ".luarc.json" or a
-          -- ".luarc.jsonc" file. Files that share a root directory will reuse
-          -- the connection to the same LSP server.
-          -- Nested lists indicate equal priority, see |vim.lsp.Config|.
-          root_markers = { '.git' },
-
-          -- Specific settings to send to the server. The schema for this is
-          -- defined by the server. For example the schema for lua-language-server
-          -- can be found here https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json
-          settings = {},
-        },
-        -- rust_analyzer = {},
-        -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
-        --
-        -- Some languages (like typescript) have entire language plugins that can be useful:
-        --    https://github.com/pmizio/typescript-tools.nvim
-        --
-        -- But for many setups, the LSP (`ts_ls`) will work just fine
-        -- ts_ls = {},
-        --
-
-        lua_ls = {
-          -- cmd = { ... },
-          -- filetypes = { ... },
-          -- capabilities = {},
-          settings = {
-            Lua = {
-              completion = {
-                callSnippet = 'Replace',
-              },
-              -- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
-              -- diagnostics = { disable = { 'missing-fields' } },
-            },
-          },
-        },
-        nil_ls = {
-          -- Command and arguments to start the server.
-          cmd = { vim.fn.expand '~/.nix-profile/bin/nil' },
-
-          -- Filetypes to automatically attach to.
-          filetypes = { 'nix' },
-
-          -- Sets the "root directory" to the parent directory of the file in the
-          -- current buffer that contains either a ".luarc.json" or a
-          -- ".luarc.jsonc" file. Files that share a root directory will reuse
-          -- the connection to the same LSP server.
-          -- Nested lists indicate equal priority, see |vim.lsp.Config|.
-          root_markers = { 'flake.nix', '.git' },
-
-          -- Specific settings to send to the server. The schema for this is
-          -- defined by the server. For example the schema for lua-language-server
-          -- can be found here https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json
-          settings = {},
-        },
-        bashls = {
-          cmd = { 'bash-language-server', 'start' },
-          settings = {
-            bashIde = {
-              globPattern = vim.env.GLOB_PATTERN or '*@(.sh|.inc|.bash|.command)',
-            },
-          },
-          filetypes = { 'bash', 'sh' },
-          root_markers = { '.git' },
-        },
-        taplo = {},
-        jsonls = {},
+        mason = { 
+	        -- gopls = {},
+	        pyright = {
+	          -- Command and arguments to start the server.
+	          cmd = { vim.fn.expand '~/.nix-profile/bin/pylsp' },
+	
+	          -- Filetypes to automatically attach to.
+	          filetypes = { 'python' },
+	
+	          -- Sets the "root directory" to the parent directory of the file in the
+	          -- current buffer that contains either a ".luarc.json" or a
+	          -- ".luarc.jsonc" file. Files that share a root directory will reuse
+	          -- the connection to the same LSP server.
+	          -- Nested lists indicate equal priority, see |vim.lsp.Config|.
+	          root_markers = { '.git' },
+	
+	          -- Specific settings to send to the server. The schema for this is
+	          -- defined by the server. For example the schema for lua-language-server
+	          -- can be found here https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json
+	          settings = {},
+	        },
+	        -- rust_analyzer = {},
+	        -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
+	        --
+	        -- Some languages (like typescript) have entire language plugins that can be useful:
+	        --    https://github.com/pmizio/typescript-tools.nvim
+	        --
+	        -- But for many setups, the LSP (`ts_ls`) will work just fine
+	        -- ts_ls = {},
+	        --
+	
+	        lua_ls = {
+	          -- cmd = { ... },
+	          -- filetypes = { ... },
+	          -- capabilities = {},
+	          settings = {
+	            Lua = {
+	              completion = {
+	                callSnippet = 'Replace',
+	              },
+	              -- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
+	              -- diagnostics = { disable = { 'missing-fields' } },
+	            },
+	          },
+	        },
+	        nil_ls = {
+	          -- Command and arguments to start the server.
+	          cmd = { vim.fn.expand '~/.nix-profile/bin/nil' },
+	
+	          -- Filetypes to automatically attach to.
+	          filetypes = { 'nix' },
+	
+	          -- Sets the "root directory" to the parent directory of the file in the
+	          -- current buffer that contains either a ".luarc.json" or a
+	          -- ".luarc.jsonc" file. Files that share a root directory will reuse
+	          -- the connection to the same LSP server.
+	          -- Nested lists indicate equal priority, see |vim.lsp.Config|.
+	          root_markers = { 'flake.nix', '.git' },
+	
+	          -- Specific settings to send to the server. The schema for this is
+	          -- defined by the server. For example the schema for lua-language-server
+	          -- can be found here https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json
+	          settings = {},
+	        },
+	        bashls = {
+	          cmd = { 'bash-language-server', 'start' },
+	          settings = {
+	            bashIde = {
+	              globPattern = vim.env.GLOB_PATTERN or '*@(.sh|.inc|.bash|.command)',
+	            },
+	          },
+	          filetypes = { 'bash', 'sh' },
+	          root_markers = { '.git' },
+	        },
+	        taplo = {},
+	        jsonls = {},
+        }
       }
 
       -- Ensure the servers and tools above are installed
@@ -783,7 +795,7 @@ require('lazy').setup({
       --
       -- You can add other tools here that you want Mason to install
       -- for you, so that they are available from within Neovim.
-      local ensure_installed = vim.tbl_keys(servers or {})
+      local ensure_installed = vim.tbl_keys(servers.mason or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
       })
@@ -794,7 +806,7 @@ require('lazy').setup({
         automatic_installation = false,
         handlers = {
           function(server_name)
-            local server = servers[server_name] or {}
+            local server = servers.mason[server_name] or {}
             -- This handles overriding only values explicitly passed
             -- by the server configuration above. Useful when disabling
             -- certain features of an LSP (for example, turning off formatting for ts_ls)
@@ -803,6 +815,13 @@ require('lazy').setup({
           end,
         },
       }
+     -- setup non-mason based lsp servers
+     -- print("Setting up none Mason servers")
+      for server_name, config in pairs(servers.non_mason) do
+     -- print("Setting up none Mason server:"..server_name)
+        vim.lsp.config(server_name, config)
+        vim.lsp.enable(server_name)
+      end
     end,
   },
 
