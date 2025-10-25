@@ -169,6 +169,13 @@ vim.o.inccommand = 'split'
 -- Show which line your cursor is on
 vim.o.cursorline = true
 
+vim.o.autoindent = true -- Enable auto indentation
+vim.o.expandtab = true -- Use spaces instead of tabs
+vim.o.tabstop = 2 -- Number of spaces for a tab
+vim.o.softtabstop = 2 -- Number of spaces for a tab when editing
+vim.o.shiftwidth = 2 -- Number of spaces for autoindent
+vim.o.shiftround = true -- Round indent to multiple of shiftwidth
+
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.o.scrolloff = 10
 
@@ -983,7 +990,7 @@ require('lazy').setup({
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
+      -- vim.cmd.colorscheme 'tokyonight-night'
     end,
   },
 
