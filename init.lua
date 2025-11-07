@@ -122,8 +122,16 @@ vim.o.showmode = false
 --  Schedule the setting after `UiEnter` because it can increase startup-time.
 --  Remove this option if you want your OS clipboard to remain independent.
 --  See `:help 'clipboard'`
+-- echo "Fred" | xclip -selection primary
+-- echo "Fred" | xclip -selection clipboard
+-- xclip -selection primary -out
+-- xclip -selection clipboard -out
+-- 
+--  
 vim.schedule(function()
   vim.o.clipboard = 'unnamedplus'
+  -- vim.o.clipboard = 'unnamed'
+  -- vim.o.clipboard = 'unnamedplus,unnamed'
 end)
 
 -- Enable break indent
@@ -603,6 +611,14 @@ require('lazy').setup({
           --  Useful when you're not sure what type a variable is and you want to see
           --  the definition of its *type*, not where it was *defined*.
           map('grt', require('telescope.builtin').lsp_type_definitions, '[G]oto [T]ype Definition')
+
+          if vim.lsp.buf.implementation then
+            -- Map <leader>gi to "Go to Implementation"
+            vim.keymap.set('n', '<leader>gi', vim.lsp.buf.implementation, { buffer = true, desc = 'Go to Implementation' })
+
+            -- Map gI to "Go to Implementation" (another common convention)
+            vim.keymap.set('n', 'gI', vim.lsp.buf.implementation, { buffer = true, desc = 'Go to Implementation' })
+            end
 
           -- This function resolves a difference between neovim nightly (version 0.11) and stable (version 0.10)
           ---@param client vim.lsp.Client
