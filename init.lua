@@ -90,6 +90,11 @@ P.S. You can delete this when you're done too. It's your config now! :)
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
+-- Inside your init.lua file
+vim.opt.expandtab = true -- Converts tabs to spaces
+vim.opt.tabstop = 2 -- Insert 4 spaces for a tab
+vim.opt.shiftwidth = 2 -- Change the number of space characters inserted for indentation
+
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = false
 
@@ -614,7 +619,7 @@ require('lazy').setup({
       -- You can press `g?` for help in this menu.
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
-        'lua_ls', -- Lua Language server
+        -- 'lua_ls', -- Lua Language server
         'stylua', -- Used to format Lua code
         -- You can add other tools here that you want Mason to install
       })
@@ -849,15 +854,44 @@ require('lazy').setup({
     end,
   },
 
-  { -- Highlight, edit, and navigate code
+  -- Plugin definition (usually around line 257 in older/modified kickstart versions)
+  {
     'nvim-treesitter/nvim-treesitter',
+    build = ':TSUpdate',
     config = function()
-      local filetypes = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' }
-      require('nvim-treesitter').install(filetypes)
-      vim.api.nvim_create_autocmd('FileType', {
-        pattern = filetypes,
-        callback = function() vim.treesitter.start() end,
-      })
+      -- Configuration setup (around line 856)
+      local configs = require 'nvim-treesitter.configs'
+
+      configs.setup {
+        -- A list of parser names, or "all"
+        ensure_installed = {
+          'bash',
+          'c',
+          'diff',
+          'html',
+          'lua',
+          'luadoc',
+          'markdown',
+          'markdown_inline',
+          'query',
+          'vim',
+          'vimdoc',
+        },
+
+        -- Install parsers synchronously (only applied to `ensure_installed`)
+        sync_install = false,
+
+        -- Automatically install missing parsers when entering buffer
+        -- Recommendation: set to false if you don't have `tree-sitter` CLI installed
+        auto_install = true,
+
+        highlight = {
+          enable = true,
+          -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
+          -- Set to `false` if you experience performance issues.
+          additional_vim_regex_highlighting = false,
+        },
+      }
     end,
   },
 
