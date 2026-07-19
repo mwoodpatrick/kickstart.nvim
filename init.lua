@@ -84,6 +84,20 @@ I hope you enjoy your Neovim journey,
 P.S. You can delete this when you're done too. It's your config now! :)
 --]]
 
+local is_nixos = vim.fn.filereadable("/etc/NIXOS") == 1
+
+if is_nixos then
+    -- Apply NixOS-specific settings
+    vim.notify("Running on NixOS", vim.log.levels.INFO)
+end
+
+local is_nix_managed = string.find(vim.env.PATH, "/nix/store") ~= nil
+
+if is_nix_managed then
+    -- Neovim is running within a Nix-managed environment
+    vim.g.is_nix_shell = true
+end
+
 -- ============================================================
 -- SECTION 1: OPTIONS
 -- Core Neovim settings, leaders, options, basic keymaps, basic autocmds
@@ -748,7 +762,9 @@ do
   }
 
   -- Automatically install LSPs and related tools to stdpath for Neovim
-  require('mason').setup {}
+  require('mason').setup {
+        vim.notify("Running on NixOS", vim.log.levels.INFO)
+  }
 
   -- Ensure the servers and tools above are installed
   --
@@ -772,13 +788,19 @@ end
 
 -- ============================================================
 -- SECTION 7: FORMATTING
--- conform.nvim setup and keymap
+-- [conform.nvim](https://github.com/stevearc/conform.nvim) setup and keymap
 -- ============================================================
 do
   -- [[ Formatting ]]
   vim.pack.add { gh 'stevearc/conform.nvim' }
   require('conform').setup {
-    notify_on_error = false,
+    -- Conform will notify you when a formatter errors
+    notify_on_error = true,
+     -- Conform will notify you when no formatters are available for the buffer
+    notify_no_formatters = true,
+    -- If this is set, Conform will run the formatter asynchronously after save.
+    -- It will pass the table to conform.format().
+    -- This can also be a function that returns the table.
     format_on_save = function(bufnr)
       -- You can specify filetypes to autoformat on save here:
       local enabled_filetypes = {
@@ -796,12 +818,14 @@ do
     },
     -- You can also specify external formatters in here.
     formatters_by_ft = {
-      -- rust = { 'rustfmt' },
-      -- Conform can also run multiple formatters sequentially
-      -- python = { "isort", "black" },
-      --
-      -- You can use 'stop_after_first' to run the first available formatter from the list
-      -- javascript = { "prettierd", "prettier", stop_after_first = true },
+      lua = { "stylua" },
+      -- Conform will run multiple formatters sequentially
+      python = { "isort", "black" },
+      -- You can customize some of the format options for the filetype (:help conform.format)
+      rust = { "rustfmt", lsp_format = "fallback" },
+      -- Conform will run the first available formatter
+      javascript = { "prettierd", "prettier", stop_after_first = true },
+      nix = { "nixfmt" },
     },
   }
 
