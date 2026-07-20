@@ -88,7 +88,7 @@ local is_nixos = vim.fn.filereadable("/etc/NIXOS") == 1
 
 if is_nixos then
     -- Apply NixOS-specific settings
-    vim.notify("Running on NixOS", vim.log.levels.INFO)
+    -- vim.notify("Running on NixOS", vim.log.levels.INFO)
 end
 
 local is_nix_managed = string.find(vim.env.PATH, "/nix/store") ~= nil
@@ -120,11 +120,14 @@ do
   -- NOTE: You can change these options as you wish!
   --  For more options, you can see `:help option-list`
 
+  -- Enable True Color inside Neovim
+  vim.opt.termguicolors = true
+
   -- Make line numbers default
   vim.o.number = true
   -- You can also add relative line numbers, to help with jumping.
   --  Experiment for yourself to see if you like it!
-  -- vim.o.relativenumber = true
+  vim.o.relativenumber = true
 
   -- Enable mouse mode, can be useful for resizing splits for example!
   vim.o.mouse = 'a'
@@ -150,6 +153,9 @@ do
 
   -- Keep signcolumn on by default
   vim.o.signcolumn = 'yes'
+
+  -- Highlight column 80
+  vim.o.colorcolumn = "80"
 
   -- Decrease update time
   vim.o.updatetime = 250
@@ -177,6 +183,13 @@ do
 
   -- Show which line your cursor is on
   vim.o.cursorline = true
+
+  vim.o.autoindent = true -- Enable auto indentation
+  vim.o.expandtab = true -- Use spaces instead of tabs
+  vim.o.tabstop = 2 -- Number of spaces for a tab
+  vim.o.softtabstop = 2 -- Number of spaces for a tab when editing
+  vim.o.shiftwidth = 2 -- Number of spaces for autoindent
+  vim.o.shiftround = true -- Round indent to multiple of shiftwidth
 
   -- Minimal number of screen lines to keep above and below the cursor.
   vim.o.scrolloff = 10
@@ -763,7 +776,7 @@ do
 
   -- Automatically install LSPs and related tools to stdpath for Neovim
   require('mason').setup {
-        vim.notify("Running on NixOS", vim.log.levels.INFO)
+        -- vim.notify("Running on NixOS", vim.log.levels.INFO)
   }
 
   -- Ensure the servers and tools above are installed
