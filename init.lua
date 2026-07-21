@@ -93,6 +93,10 @@ if is_nix_managed then
   vim.g.is_nix_shell = true
 end
 
+-- disable netrw at the very start of your init.lua (see nvim-tree plugin)
+-- vim.g.loaded_netrw = 1
+-- vim.g.loaded_netrwPlugin = 1
+
 -- ============================================================
 -- SECTION 1: OPTIONS
 -- Core Neovim settings, leaders, options, basic keymaps, basic autocmds
@@ -367,6 +371,33 @@ do
   -- and then call its `setup()` function to start it with default settings.
   vim.pack.add { gh 'NMAC427/guess-indent.nvim' }
   require('guess-indent').setup {}
+
+  -- https://github.com/nvim-tree/nvim-tree.lua
+  vim.pack.add { gh 'nvim-tree/nvim-web-devicons' }
+  vim.pack.add { gh 'nvim-tree/nvim-tree.lua' }
+  require('nvim-tree').setup {
+    sort = {
+      sorter = 'case_sensitive',
+    },
+    view = {
+      width = 30,
+    },
+    renderer = {
+      group_empty = true,
+    },
+    filters = {
+      dotfiles = false,
+    },
+
+    -- There are many |netrw| features beyond the file browser. If you want to
+    -- keep using |netrw| without its browser features please ensure:
+
+    disable_netrw = false,
+    hijack_netrw = true,
+  }
+
+  -- Optional: Add a keymap to toggle the file tree quickly
+  vim.keymap.set('n', '<leader>ee', '<cmd>NvimTreeToggle<CR>', { desc = 'Toggle NvimTree' })
 
   -- Here is a more advanced configuration example that passes options to `gitsigns.nvim`
   --
