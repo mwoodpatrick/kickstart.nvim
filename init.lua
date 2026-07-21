@@ -84,18 +84,13 @@ I hope you enjoy your Neovim journey,
 P.S. You can delete this when you're done too. It's your config now! :)
 --]]
 
-local is_nixos = vim.fn.filereadable("/etc/NIXOS") == 1
+local is_nixos = vim.fn.filereadable '/etc/NIXOS' == 1
 
-if is_nixos then
-    -- Apply NixOS-specific settings
-    -- vim.notify("Running on NixOS", vim.log.levels.INFO)
-end
-
-local is_nix_managed = string.find(vim.env.PATH, "/nix/store") ~= nil
+local is_nix_managed = string.find(vim.env.PATH, '/nix/store') ~= nil
 
 if is_nix_managed then
-    -- Neovim is running within a Nix-managed environment
-    vim.g.is_nix_shell = true
+  -- Neovim is running within a Nix-managed environment
+  vim.g.is_nix_shell = true
 end
 
 -- ============================================================
@@ -155,7 +150,7 @@ do
   vim.o.signcolumn = 'yes'
 
   -- Highlight column 80
-  vim.o.colorcolumn = "80"
+  vim.o.colorcolumn = '80'
 
   -- Decrease update time
   vim.o.updatetime = 250
@@ -644,7 +639,17 @@ do
 
   -- Useful status updates for LSP.
   vim.pack.add { gh 'j-hui/fidget.nvim' }
-  require('fidget').setup {}
+  require('fidget').setup {
+    -- Options related to notification integration
+    notification = {
+      window = {
+        blend = 50, -- Window transparency (0-100)
+      },
+    },
+  }
+
+  -- Explicitly route vim.notify to fidget
+  vim.notify = require('fidget').notify
 
   --  This function gets run when an LSP attaches to a particular buffer.
   --    That is to say, every time a new file is opened that is associated with
@@ -721,7 +726,41 @@ do
   local servers = {
     -- clangd = {},
     -- gopls = {},
-    -- pyright = {},
+    nil_ls = {
+      cmd = { 'nil' },
+      filetypes = { 'nix' },
+      settings = {
+        ['nil'] = {
+          formatting = {
+            command = { 'nixfmt' },
+          },
+        },
+      },
+    },
+    nixd = {
+      cmd = { 'nixd' },
+      filetypes = { 'nix' },
+      root_markers = { 'flake.nix', '.git', 'default.nix' },
+      settings = {
+        nixd = {
+          nixpkgs = {
+            expr = 'import (builtins.getFlake(toString ./.)).inputs.nixpkgs { }',
+          },
+          formatting = {
+            command = { 'alejandra' }, -- or "nixfmt"
+          },
+          options = {
+            nixos = {
+              expr = '(builtins.getFlake(toString ./.)).nixosConfigurations.nixos.options',
+            },
+            home_manager = {
+              expr = '(builtins.getFlake(toString ./.)).homeConfigurations.mwoodpatrick.activationPackage.options',
+            },
+          },
+        },
+      },
+    },
+    pyright = {},
     -- rust_analyzer = {},
     --
     -- Some languages (like typescript) have entire language plugins that can be useful:
@@ -776,7 +815,7 @@ do
 
   -- Automatically install LSPs and related tools to stdpath for Neovim
   require('mason').setup {
-        -- vim.notify("Running on NixOS", vim.log.levels.INFO)
+    -- vim.notify("Running on NixOS", vim.log.levels.INFO)
   }
 
   -- Ensure the servers and tools above are installed
@@ -791,7 +830,12 @@ do
     -- You can add other tools here that you want Mason to install
   })
 
-  require('mason-tool-installer').setup { ensure_installed = ensure_installed }
+  if is_nixos then
+  -- packages should be installed by nix on NixOS
+  -- vim.notify("Running on NixOS", vim.log.levels.INFO)
+  else
+    require('mason-tool-installer').setup { ensure_installed = ensure_installed }
+  end
 
   for name, server in pairs(servers) do
     vim.lsp.config(name, server)
@@ -809,7 +853,7 @@ do
   require('conform').setup {
     -- Conform will notify you when a formatter errors
     notify_on_error = true,
-     -- Conform will notify you when no formatters are available for the buffer
+    -- Conform will notify you when no formatters are available for the buffer
     notify_no_formatters = true,
     -- If this is set, Conform will run the formatter asynchronously after save.
     -- It will pass the table to conform.format().
@@ -831,14 +875,14 @@ do
     },
     -- You can also specify external formatters in here.
     formatters_by_ft = {
-      lua = { "stylua" },
+      lua = { 'stylua' },
       -- Conform will run multiple formatters sequentially
-      python = { "isort", "black" },
+      python = { 'isort', 'black' },
       -- You can customize some of the format options for the filetype (:help conform.format)
-      rust = { "rustfmt", lsp_format = "fallback" },
+      rust = { 'rustfmt', lsp_format = 'fallback' },
       -- Conform will run the first available formatter
-      javascript = { "prettierd", "prettier", stop_after_first = true },
-      nix = { "nixfmt" },
+      javascript = { 'prettierd', 'prettier', stop_after_first = true },
+      nix = { 'nixfmt' },
     },
   }
 
