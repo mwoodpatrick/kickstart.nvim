@@ -84,6 +84,9 @@ I hope you enjoy your Neovim journey,
 P.S. You can delete this when you're done too. It's your config now! :)
 --]]
 
+-- Explicitly append your custom project site directory to the runtime path
+vim.opt.runtimepath:append '/mnt/wsl/projects/data/nvim/site'
+
 local is_nixos = vim.fn.filereadable '/etc/NIXOS' == 1
 
 local is_nix_managed = string.find(vim.env.PATH, '/nix/store') ~= nil
@@ -757,6 +760,11 @@ do
   local servers = {
     -- clangd = {},
     -- gopls = {},
+    --  https://github.com/bash-lsp/bash-language-server
+    bashls = {
+      cmd = { 'bash-language-server' },
+      filetypes = { 'sh', 'bash' },
+    },
     nil_ls = {
       cmd = { 'nil' },
       filetypes = { 'nix' },
@@ -839,15 +847,22 @@ do
 
   vim.pack.add {
     gh 'neovim/nvim-lspconfig',
-    gh 'mason-org/mason.nvim',
-    gh 'mason-org/mason-lspconfig.nvim',
-    gh 'WhoIsSethDaniel/mason-tool-installer.nvim',
   }
 
-  -- Automatically install LSPs and related tools to stdpath for Neovim
-  require('mason').setup {
-    -- vim.notify("Running on NixOS", vim.log.levels.INFO)
-  }
+  if is_nixos then
+  -- packages should be installed by nix on NixOS
+  -- vim.notify("Running on NixOS", vim.log.levels.INFO)
+  else
+    vim.pack.add {
+      gh 'mason-org/mason.nvim',
+      gh 'mason-org/mason-lspconfig.nvim',
+      gh 'WhoIsSethDaniel/mason-tool-installer.nvim',
+    }
+    -- Automatically install LSPs and related tools to stdpath for Neovim
+    require('mason').setup {
+      -- vim.notify("Running on NixOS", vim.log.levels.INFO)
+    }
+  end
 
   -- Ensure the servers and tools above are installed
   --
@@ -906,14 +921,18 @@ do
     },
     -- You can also specify external formatters in here.
     formatters_by_ft = {
+      bash = { 'shfmt' },
+      -- Conform will run the first available formatter
+      javascript = { 'prettierd', 'prettier', stop_after_first = true },
       lua = { 'stylua' },
+      markdown = { 'prettier' },
+      nix = { 'nixfmt' },
       -- Conform will run multiple formatters sequentially
       python = { 'isort', 'black' },
       -- You can customize some of the format options for the filetype (:help conform.format)
       rust = { 'rustfmt', lsp_format = 'fallback' },
-      -- Conform will run the first available formatter
-      javascript = { 'prettierd', 'prettier', stop_after_first = true },
-      nix = { 'nixfmt' },
+      sh = { 'shfmt' },
+      typescript = { 'prettier' },
     },
   }
 
@@ -1093,3 +1112,98 @@ end
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
+
+local function open_ranger()
+  -- Define window dimensions (80% of editor size)
+  local width = math.floor(vim.o.columns * 0.8)
+  local height = math.floor(vim.o.lines * 0.8)
+  local col = math.floor((vim.o.columns - width) / 2)
+  local row = math.floor((vim.o.lines - height) / 2)
+
+  -- Create a scratch buffer
+  local buf = vim.api.nvim_create_buf(false, true)
+
+  -- Open floating window using modern API
+  local win = vim.api.nvim_open_win(buf, true, {
+    relative = 'editor',
+    width = width,
+    height = height,
+    col = col,
+    row = row,
+    style = 'minimal',
+    border = 'rounded',
+  })
+
+  -- Start job/terminal natively via jobstart instead of bare termopen
+  vim.fn.jobstart('ranger', {
+    term = true,
+    on_exit = function()
+      if vim.api.nvim_win_is_valid(win) then vim.api.nvim_win_close(win, true) end
+    end,
+  })
+
+  -- Enter terminal mode automatically
+  vim.cmd 'startinsert'
+end
+
+-- Bind to a convenient keymap (e.g., <leader>r)
+vim.keymap.set('n', '<leader>r', open_ranger, { desc = 'Open Ranger File Manager' })
+
+-- Force Neovim to recognize .bash files and alias scripts as bash
+vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, {
+  pattern = { '*.bash' },
+  callback = function()
+    -- vim.print("Opening bash file")
+    vim.bo.filetype = 'bash'
+  end,
+})
+
+-- Create a custom user command :LspInfo
+vim.api.nvim_create_user_command('LspInfo', function()
+  local clients = vim.lsp.get_clients { bufnr = 0 }
+
+  if #clients == 0 then
+    print 'No Language Servers attached to this buffer.'
+    return
+  end
+
+  print '=== Active LSP Clients for Current Buffer ==='
+  for _, client in ipairs(clients) do
+    print(string.format('- Name: %s (ID: %d)', client.name, client.id))
+    print(string.format('  Root Dir: %s', client.config.root_dir or 'N/A'))
+  end
+end, {})
+
+-- Bind it to a keymap for quick access (e.g., <leader>li)
+vim.keymap.set('n', '<leader>li', '<cmd>LspInfo<CR>', { desc = 'Show buffer LSP info' })
+
+vim.api.nvim_create_user_command("ListActiveLsp", function()
+  local clients = vim.lsp.get_clients()
+  if #clients == 0 then
+    print("No active LSP clients found.")
+    return
+  end
+
+  print("=== Active LSP Clients & Attached Buffers ===")
+  for _, client in ipairs(clients) do
+    print(string.format("💻 Server: %s (ID: %d)", client.name, client.id))
+    
+    -- client.attached_buffers is a table where keys are buffer numbers
+    local bufs = vim.tbl_keys(client.attached_buffers)
+    
+    if #bufs == 0 then
+      print("  (No buffers currently attached)")
+    else
+      table.sort(bufs)
+      for _, bufnr in ipairs(bufs) do
+        local buf_name = vim.api.nvim_buf_get_name(bufnr)
+        if buf_name == "" then buf_name = "[No Name]" end
+        print(string.format("    - [Buf %d] %s", bufnr, buf_name))
+      end
+    end
+  end
+end, {})
+
+-- Bind it to a keymap for quick access (e.g., <leader>la)
+vim.keymap.set('n', '<leader>la', '<cmd>ListActiveLsp<CR>', { desc = 'Show buffer LSP info for all buffers' })
+
