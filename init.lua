@@ -763,7 +763,7 @@ do
     --  https://github.com/bash-lsp/bash-language-server
     bashls = {
       cmd = { 'bash-language-server' },
-      filetypes = { 'sh', 'bash' },
+      filetypes = { 'sh', 'bash', "zsh" },
     },
     nil_ls = {
       cmd = { 'nil' },
