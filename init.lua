@@ -1208,3 +1208,6 @@ end, {})
 
 -- Bind it to a keymap for quick access (e.g., <leader>la)
 vim.keymap.set('n', '<leader>la', '<cmd>ListActiveLsp<CR>', { desc = 'Show buffer LSP info for all buffers' })
+
+require('vim._core.ui2').enable({ transparency = true })
+
