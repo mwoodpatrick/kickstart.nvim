@@ -762,8 +762,9 @@ do
     -- gopls = {},
     --  https://github.com/bash-lsp/bash-language-server
     bashls = {
-      cmd = { 'bash-language-server' },
-      filetypes = { 'sh', 'bash', "zsh" },
+      cmd = { 'bash-language-server', 'start' },
+      filetypes = { 'sh', 'bash', 'zsh' },
+      root_markers = { '.git' },
     },
     nil_ls = {
       cmd = { 'nil' },
@@ -886,6 +887,7 @@ do
   for name, server in pairs(servers) do
     vim.lsp.config(name, server)
     vim.lsp.enable(name)
+    -- vim.print(string.format("LSP server %s enabled", name))
   end
 end
 
@@ -1177,28 +1179,28 @@ end, {})
 -- Bind it to a keymap for quick access (e.g., <leader>li)
 vim.keymap.set('n', '<leader>li', '<cmd>LspInfo<CR>', { desc = 'Show buffer LSP info' })
 
-vim.api.nvim_create_user_command("ListActiveLsp", function()
+vim.api.nvim_create_user_command('ListActiveLsp', function()
   local clients = vim.lsp.get_clients()
   if #clients == 0 then
-    print("No active LSP clients found.")
+    print 'No active LSP clients found.'
     return
   end
 
-  print("=== Active LSP Clients & Attached Buffers ===")
+  print '=== Active LSP Clients & Attached Buffers ==='
   for _, client in ipairs(clients) do
-    print(string.format("💻 Server: %s (ID: %d)", client.name, client.id))
-    
+    print(string.format('💻 Server: %s (ID: %d)', client.name, client.id))
+
     -- client.attached_buffers is a table where keys are buffer numbers
     local bufs = vim.tbl_keys(client.attached_buffers)
-    
+
     if #bufs == 0 then
-      print("  (No buffers currently attached)")
+      print '  (No buffers currently attached)'
     else
       table.sort(bufs)
       for _, bufnr in ipairs(bufs) do
         local buf_name = vim.api.nvim_buf_get_name(bufnr)
-        if buf_name == "" then buf_name = "[No Name]" end
-        print(string.format("    - [Buf %d] %s", bufnr, buf_name))
+        if buf_name == '' then buf_name = '[No Name]' end
+        print(string.format('    - [Buf %d] %s', bufnr, buf_name))
       end
     end
   end
@@ -1206,4 +1208,3 @@ end, {})
 
 -- Bind it to a keymap for quick access (e.g., <leader>la)
 vim.keymap.set('n', '<leader>la', '<cmd>ListActiveLsp<CR>', { desc = 'Show buffer LSP info for all buffers' })
-
