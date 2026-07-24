@@ -1209,5 +1209,30 @@ end, {})
 -- Bind it to a keymap for quick access (e.g., <leader>la)
 vim.keymap.set('n', '<leader>la', '<cmd>ListActiveLsp<CR>', { desc = 'Show buffer LSP info for all buffers' })
 
-require('vim._core.ui2').enable({ transparency = true })
+-- Fetch recent command-line history items programmatically
+vim.api.nvim_create_user_command('CreateHistoryBuffer', function()
+  local history_items = {}
+  for i = 1, vim.fn.histnr 'cmd' do
+    local cmd = vim.fn.histget('cmd', i)
+    if cmd ~= '' then table.insert(history_items, cmd) end
+  end
 
+  -- Open a new scratch buffer containing the history list for easy copying
+  local buf = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, history_items)
+  vim.api.nvim_set_current_buf(buf)
+end, {})
+
+-- Bind it to a keymap for quick access (e.g., <leader>la)
+vim.keymap.set('n', '<leader>hb', '<cmd>CreateHistoryBuffer<CR>', { desc = 'Show history buffer' })
+
+require('vim._core.ui2').enable {
+  enable = true,
+  msg = {
+    targets = 'cmd', -- Route messages through the modernized command area
+    pager = {
+      height = 1, -- Configure pager behavior for long outputs
+    },
+  },
+  transparency = true,
+}
