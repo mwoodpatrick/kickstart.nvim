@@ -454,6 +454,74 @@ do
   -- [fugitive.vim](https://github.com/tpope/vim-fugitive#fugitivevim)
   vim.pack.add { gh 'tpope/vim-fugitive' }
 
+  -- [snacks.nvim](https://github.com/folke/snacks.nvim/tree/main#-snacksnvim)
+  vim.pack.add { gh 'folke/snacks.nvim' }
+  -- ==========================================
+  -- Snacks.nvim Native Configuration
+  -- ==========================================
+  require('snacks').setup {
+    bigfile = { enabled = true },
+    notifier = {
+      enabled = true,
+      timeout = 3000,
+    },
+    quickfile = { enabled = true },
+    statuscolumn = { enabled = true },
+    words = { enabled = true },
+    scroll = { enabled = true },
+
+    -- [picker](https://github.com/folke/snacks.nvim/blob/main/docs/picker.md)
+    picker = { enabled = true },
+
+    -- [terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md)
+    terminal = {
+      enabled = true,
+      -- Optional shell configuration (defaults to your system $SHELL)
+      shell = vim.o.shell,
+      -- Window appearance options for floating terminals
+      win = {
+        style = 'float',
+        border = 'rounded',
+        width = 0.8,
+        height = 0.8,
+      },
+    },
+  }
+
+  -- ==========================================
+  -- Optional Keymaps for Snacks Modules
+  -- ==========================================
+  -- Define Snacks as a global variable reference to ensure lua_ls knows about it
+  _G.Snacks = _G.Snacks or {}
+  local map = vim.keymap.set
+
+  -- Toggle scratch buffer
+  map('n', '<leader>z', function() Snacks.scratch() end, { desc = 'Toggle Scratch Buffer' })
+
+  -- Find files using Snacks picker
+  map('n', '<leader>ff', function() Snacks.picker.files() end, { desc = 'Snacks Find Files' })
+
+  -- Live grep text search
+  map('n', '<leader>fw', function() Snacks.picker.grep() end, { desc = 'Snacks Live Grep' })
+
+  -- View notification history
+  map('n', '<leader>n', function() Snacks.notifier.show_history() end, { desc = 'Notification History' })
+
+  -- [opencode.nvim](https://github.com/nickjvandyke/opencode.nvim#opencodenvim)
+  vim.pack.add { gh 'nickjvandyke/opencode.nvim' }
+  ---@type opencode.Opts
+  vim.g.opencode_opts = {
+    -- Your configuration, if any; goto definition on the type for details
+  }
+
+  -- Recommended/example keymaps
+  vim.keymap.set({ 'n', 'x' }, '<C-a>', function() require('opencode').ask '@this: ' end, { desc = 'Ask OpenCode…' })
+  vim.keymap.set({ 'n', 'x' }, '<C-x>', function() require('opencode').select() end, { desc = 'Select OpenCode…' })
+  vim.keymap.set({ 'n', 'x' }, 'go', function() return require('opencode').operator '@this ' end, { desc = 'Append range to OpenCode', expr = true })
+  vim.keymap.set({ 'n' }, 'goo', function() return require('opencode').operator '@this ' .. '_' end, { desc = 'Append line to OpenCode', expr = true })
+  vim.keymap.set({ 'n' }, '<S-C-u>', function() require('opencode').command 'session.half.page.up' end, { desc = 'Scroll OpenCode up' })
+  vim.keymap.set({ 'n' }, '<S-C-d>', function() require('opencode').command 'session.half.page.down' end, { desc = 'Scroll OpenCode down' })
+
   vim.pack.add { gh 'obsidian-nvim/obsidian.nvim' }
   require('obsidian').setup {
     workspaces = {
