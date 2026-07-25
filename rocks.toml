@@ -1,0 +1,11 @@
+[rockspec]
+format = "3.0"
+
+[dependencies]
+# Core Neovim utility specs
+"plenary.nvim" = "1.0.0-1"
+
+# Markdown ecosystem plugins
+"obsidian.nvim" = "3.9.0-1"
+"render-markdown.nvim" = "7.0.0-1"
+# "markdown-preview.nvim" = "0.0.9-1"

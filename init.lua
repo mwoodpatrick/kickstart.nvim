@@ -409,13 +409,50 @@ do
   vim.pack.add { gh 'lewis6991/gitsigns.nvim' }
   require('gitsigns').setup {
     signs = {
-      add = { text = '+' }, ---@diagnostic disable-line: missing-fields
-      change = { text = '~' }, ---@diagnostic disable-line: missing-fields
-      delete = { text = '_' }, ---@diagnostic disable-line: missing-fields
-      topdelete = { text = '‾' }, ---@diagnostic disable-line: missing-fields
-      changedelete = { text = '~' }, ---@diagnostic disable-line: missing-fields
+      add = { text = '┃' },
+      change = { text = '┃' },
+      delete = { text = '_' },
+      topdelete = { text = '‾' },
+      changedelete = { text = '~' },
     },
+    current_line_blame = true, -- Toggle inline git blame
+    current_line_blame_opts = {
+      virt_text = true,
+      virt_text_pos = 'eol', -- 'eol' | 'overlay' | 'right_align'
+      delay = 500,
+    },
+    on_attach = function(bufnr)
+      local gs = package.loaded.gitsigns
+
+      local function map(mode, l, r, opts)
+        opts = opts or {}
+        opts.buffer = bufnr
+        vim.keymap.set(mode, l, r, opts)
+      end
+
+      -- Navigation between hunks
+      map('n', ']c', function()
+        if vim.wo.diff then return ']c' end
+        vim.schedule(function() gs.next_hunk() end)
+        return '<Ignore>'
+      end, { expr = true })
+
+      map('n', '[c', function()
+        if vim.wo.diff then return '[c' end
+        vim.schedule(function() gs.prev_hunk() end)
+        return '<Ignore>'
+      end, { expr = true })
+
+      -- Actions: Staging and Previewing
+      map('n', '<leader>hs', gs.stage_hunk, { desc = 'Stage Git Hunk' })
+      map('n', '<leader>hr', gs.reset_hunk, { desc = 'Reset Git Hunk' })
+      map('n', '<leader>hp', gs.preview_hunk, { desc = 'Preview Git Hunk' })
+      map('n', '<leader>hb', function() gs.blame_line { full = true } end, { desc = 'Blame Line Full' })
+    end,
   }
+
+  -- [fugitive.vim](https://github.com/tpope/vim-fugitive#fugitivevim)
+  vim.pack.add { gh 'tpope/vim-fugitive' }
 
   vim.pack.add { gh 'obsidian-nvim/obsidian.nvim' }
   require('obsidian').setup {
