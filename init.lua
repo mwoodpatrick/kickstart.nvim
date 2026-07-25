@@ -417,6 +417,42 @@ do
     },
   }
 
+  vim.pack.add { gh 'obsidian-nvim/obsidian.nvim' }
+  require('obsidian').setup {
+    workspaces = {
+      {
+        name = 'personal',
+        path = '~/obsidian/vaults/personal', -- Adjust to your local vault path
+      },
+    },
+    -- Optional: mappings, note ID formatting, etc.
+    daily_notes = {
+      folder = 'notes/dailies',
+      date_format = '%Y-%m-%d',
+    },
+  }
+
+  -- https://github.com/MeanderingProgrammer/render-markdown.nvim/wiki
+  vim.pack.add { gh 'MeanderingProgrammer/render-markdown.nvim' }
+  require('render-markdown').setup {
+    file_types = { 'markdown', 'Avante' },
+    code = {
+      sign = false,
+      width = 'full',
+      position = 'right',
+    },
+    checkbox = {
+      enabled = true,
+    },
+  }
+
+  -- Markdown-preview relies on a global function mapping or autocmd if native
+  local opts = { buffer = 0 }
+
+  -- Obsidian quick actions (Example bindings)
+  vim.keymap.set('n', '<leader>of', '<cmd>ObsidianQuickSwitch<CR>', opts)
+  vim.keymap.set('n', '<leader>ot', '<cmd>ObsidianToday<CR>', opts)
+
   -- Useful plugin to show you pending keybinds.
   vim.pack.add { gh 'folke/which-key.nvim' }
   require('which-key').setup {
