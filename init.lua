@@ -1411,7 +1411,9 @@ vim.keymap.set(
   { desc = 'Run Aider in Snacks Terminal' }
 )
 
-vim.pack.add { { src = gh 'olimorris/codecompanion.nvim', version = 'main' } }
+vim.pack.add { { src = gh 'olimorris/codecompanion.nvim'} }
+vim.pack.add { { src = gh 'lalitmee/codecompanion-spinners.nvim'} }
+
 -- Ensure native package directories are registered if customized
 -- (Standard paths under ~/.local/share/nvim/site/pack/ are loaded automatically)
 
@@ -1435,6 +1437,15 @@ require('codecompanion').setup {
         },
       })
     end,
+  },
+
+  extensions = {
+    spinner = {
+      enabled = true,
+      opts = {
+        style = "fidget", -- Instructs the extension to use fidget.nvim
+      },
+    },
   },
 }
 
