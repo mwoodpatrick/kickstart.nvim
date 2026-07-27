@@ -380,19 +380,17 @@ do
   vim.pack.add { gh 'nvim-tree/nvim-web-devicons' }
   vim.pack.add { gh 'nvim-tree/nvim-tree.lua' }
 
-   local function nvim_tree_on_attach(bufnr)
-    local api = require "nvim-tree.api"
+  local function nvim_tree_on_attach(bufnr)
+    local api = require 'nvim-tree.api'
 
-    local function opts(desc)
-      return { desc = "nvim-tree: " .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
-    end
+    local function opts(desc) return { desc = 'nvim-tree: ' .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true } end
 
     -- default mappings
     api.map.on_attach.default(bufnr)
 
     -- custom mappings
-    vim.keymap.set("n", "<C-t>", api.tree.change_root_to_parent,        opts("Up"))
-    vim.keymap.set("n", "?",     api.tree.toggle_help,                  opts("Help"))
+    vim.keymap.set('n', '<C-t>', api.tree.change_root_to_parent, opts 'Up')
+    vim.keymap.set('n', '?', api.tree.toggle_help, opts 'Help')
   end
 
   require('nvim-tree').setup {
@@ -1397,13 +1395,50 @@ require('vim._core.ui2').enable {
   transparency = true,
 }
 
-vim.keymap.set("n", "<leader>ta", function()
-  Snacks.terminal("aider --model ollama_chat/gemma4", {
-    win = {
-      style = "float",
-      border = "rounded",
-      width = 0.85,
-      height = 0.85,
+vim.keymap.set(
+  'n',
+  '<leader>ta',
+  function()
+    Snacks.terminal('aider --model ollama_chat/gemma4', {
+      win = {
+        style = 'float',
+        border = 'rounded',
+        width = 0.85,
+        height = 0.85,
+      },
+    })
+  end,
+  { desc = 'Run Aider in Snacks Terminal' }
+)
+
+vim.pack.add { { src = gh 'olimorris/codecompanion.nvim', version = 'main' } }
+-- Ensure native package directories are registered if customized
+-- (Standard paths under ~/.local/share/nvim/site/pack/ are loaded automatically)
+
+-- Configure CodeCompanion.nvim
+require('codecompanion').setup {
+  strategies = {
+    chat = {
+      adapter = 'ollama', -- or "anthropic", "openai", etc.
     },
-  })
-end, { desc = "Run Aider in Snacks Terminal" })
+    inline = {
+      adapter = 'ollama',
+    },
+  },
+  adapters = {
+    ollama = function()
+      return require('codecompanion.adapters').use('ollama', {
+        schema = {
+          model = {
+            default = 'gemma4', -- Adjust to your preferred local model (e.g., gemma4, llama3)
+          },
+        },
+      })
+    end,
+  },
+}
+
+-- Optional Keymaps for Quick Access
+vim.keymap.set({ 'n', 'v' }, '<leader>cc', '<cmd>CodeCompanionChat Toggle<CR>', { desc = 'Toggle CodeCompanion Chat' })
+vim.keymap.set('v', '<leader>ca', '<cmd>CodeCompanionActions<CR>', { desc = 'CodeCompanion Actions' })
+vim.keymap.set('n', '<leader>ci', '<cmd>CodeCompanion<CR>', { desc = 'CodeCompanion Inline Prompt' })
