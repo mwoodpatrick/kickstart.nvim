@@ -1412,20 +1412,24 @@ vim.keymap.set(
   { desc = 'Run Aider in Snacks Terminal' }
 )
 
-vim.pack.add { { src = gh 'olimorris/codecompanion.nvim'} }
-vim.pack.add { { src = gh 'lalitmee/codecompanion-spinners.nvim'} }
+vim.pack.add { { src = gh 'olimorris/codecompanion.nvim' } }
+vim.pack.add { { src = gh 'lalitmee/codecompanion-spinners.nvim' } }
 
 -- Ensure native package directories are registered if customized
 -- (Standard paths under ~/.local/share/nvim/site/pack/ are loaded automatically)
 
 -- Configure CodeCompanion.nvim
 require('codecompanion').setup {
+  opts = {
+    log_level = 'DEBUG',
+    language = 'English',
+  },
   strategies = {
     chat = {
       adapter = 'ollama', -- or "anthropic", "openai", etc.
     },
     inline = {
-      adapter = 'ollama',
+      adapter = 'ollama', -- or copilot
     },
   },
   adapters = {
@@ -1438,13 +1442,18 @@ require('codecompanion').setup {
         },
       })
     end,
+    openai = function()
+      return require('codecompanion.adapters').extend('openai', {
+        env = { api_key = 'YOUR_API_KEY' },
+      })
+    end,
   },
 
   extensions = {
     spinner = {
       enabled = true,
       opts = {
-        style = "fidget", -- Instructs the extension to use fidget.nvim
+        style = 'fidget', -- Instructs the extension to use fidget.nvim
       },
     },
   },
