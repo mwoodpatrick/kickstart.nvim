@@ -848,7 +848,7 @@ do
   -- minimalist corner updates and dislike floating boxes popping up over your code.
   -- vim.notify = require('fidget').notify
   -- provides a rich notification history log, visually distinct toast messages
-  vim.notify = require("snacks").notifier
+  vim.notify = require('snacks').notifier
 
   --  This function gets run when an LSP attaches to a particular buffer.
   --    That is to say, every time a new file is opened that is associated with
@@ -1460,6 +1460,56 @@ require('codecompanion').setup {
       enabled = true,
       opts = {
         style = 'fidget', -- Instructs the extension to use fidget.nvim
+      },
+    },
+  },
+
+  prompt_library = {
+    ['Generate Commit Message'] = {
+      strategy = 'chat',
+      description = 'Review git diff and write a conventional commit message',
+      opts = {
+        index = 10,
+        is_slash_cmd = true,
+        short_name = 'commit',
+        auto_submit = false, -- Set to true if you want it to stream immediately
+        theming = {
+          icon = 'git',
+          color = 'yellow',
+        },
+      },
+      prompts = {
+        {
+          role = 'system',
+          content = [[You are an expert software engineer. Your task is to analyze the provided git diff, review the changes for potential issues or bugs, and then generate a concise, professional conventional commit message (e.g., feat:, fix:, refactor:, chore:) with a short description followed by a detailed bulleted body if necessary.]],
+        },
+        {
+          role = 'user',
+          content = function()
+            -- Safely attempt to read staged changes
+            local handle = io.popen 'git diff --cached'
+            local result = nil
+
+            if handle then
+              result = handle:read '*a'
+              handle:close()
+            end
+
+            -- If no staged changes, try checking unstaged changes
+            if not result or result == '' then
+              local handle_unstaged = io.popen 'git diff'
+              if handle_unstaged then
+                result = handle_unstaged:read '*a'
+                handle_unstaged:close()
+              end
+            end
+
+            -- Final guard against nil or completely empty diff outputs
+            if not result or result == '' then return 'Error: No git changes detected (staged or unstaged), or not inside a valid Git repository.' end
+
+            return 'Please review these code changes and generate a commit message:\n\n```diff\n' .. result .. '\n```'
+          end,
+        },
       },
     },
   },
