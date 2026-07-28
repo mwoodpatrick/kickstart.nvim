@@ -553,7 +553,14 @@ do
       folder = 'notes/dailies',
       date_format = '%Y-%m-%d',
     },
+    ui = {
+      enable = false, -- Disables obsidian's UI engine to hand full control to render-markdown
+    },
   }
+
+  -- Obsidian quick actions (Example bindings)
+  -- vim.keymap.set('n', '<leader>of', '<cmd>ObsidianQuickSwitch<CR>', opts)
+  -- vim.keymap.set('n', '<leader>ot', '<cmd>ObsidianToday<CR>', opts)
 
   -- https://github.com/MeanderingProgrammer/render-markdown.nvim/wiki
   vim.pack.add { gh 'MeanderingProgrammer/render-markdown.nvim' }
@@ -571,10 +578,6 @@ do
 
   -- Markdown-preview relies on a global function mapping or autocmd if native
   local opts = { buffer = 0 }
-
-  -- Obsidian quick actions (Example bindings)
-  vim.keymap.set('n', '<leader>of', '<cmd>ObsidianQuickSwitch<CR>', opts)
-  vim.keymap.set('n', '<leader>ot', '<cmd>ObsidianToday<CR>', opts)
 
   -- Useful plugin to show you pending keybinds.
   vim.pack.add { gh 'folke/which-key.nvim' }
@@ -842,7 +845,10 @@ do
   }
 
   -- Explicitly route vim.notify to fidget
-  vim.notify = require('fidget').notify
+  -- minimalist corner updates and dislike floating boxes popping up over your code.
+  -- vim.notify = require('fidget').notify
+  -- provides a rich notification history log, visually distinct toast messages
+  vim.notify = require("snacks").notifier
 
   --  This function gets run when an LSP attaches to a particular buffer.
   --    That is to say, every time a new file is opened that is associated with
@@ -1463,3 +1469,40 @@ require('codecompanion').setup {
 vim.keymap.set({ 'n', 'v' }, '<leader>cc', '<cmd>CodeCompanionChat Toggle<CR>', { desc = 'Toggle CodeCompanion Chat' })
 vim.keymap.set('v', '<leader>ca', '<cmd>CodeCompanionActions<CR>', { desc = 'CodeCompanion Actions' })
 vim.keymap.set('n', '<leader>ci', '<cmd>CodeCompanion<CR>', { desc = 'CodeCompanion Inline Prompt' })
+
+-- Install the debugger plugin stack
+-- [DAP (Debug Adapter Protocol)](https://github.com/mfussenegger/nvim-dap)
+vim.pack.add { { src = gh 'mfussenegger/nvim-dap' } }
+--
+-- [nvim-dap-ui a UI for nvim-dap)](https://github.com/rcarriga/nvim-dap-ui)
+vim.pack.add { { src = gh 'rcarriga/nvim-dap-ui' } }
+
+-- [nvim-dap-ui a UI for nvim-dap)](https://github.com/jbyuki/one-small-step-for-vimkind)
+vim.pack.add { { src = gh 'jbyuki/one-small-step-for-vimkind' } }
+
+local dap = require 'dap'
+dap.configurations.lua = {
+  {
+    type = 'nlua',
+    request = 'attach',
+    name = 'Attach to running Neovim instance',
+  },
+}
+
+dap.adapters.nlua = function(callback, config) callback { type = 'server', host = config.host or '127.0.0.1', port = config.port or 8086 } end
+
+vim.keymap.set('n', '<leader>db', require('dap').toggle_breakpoint, { noremap = true })
+vim.keymap.set('n', '<leader>dc', require('dap').continue, { noremap = true })
+vim.keymap.set('n', '<leader>do', require('dap').step_over, { noremap = true })
+vim.keymap.set('n', '<leader>di', require('dap').step_into, { noremap = true })
+vim.keymap.set('n', '<leader>dl', function() require('osv').launch { port = 8086 } end, { noremap = true })
+
+vim.keymap.set('n', '<leader>dw', function()
+  local widgets = require 'dap.ui.widgets'
+  widgets.hover()
+end)
+
+vim.keymap.set('n', '<leader>df', function()
+  local widgets = require 'dap.ui.widgets'
+  widgets.centered_float(widgets.frames)
+end)
