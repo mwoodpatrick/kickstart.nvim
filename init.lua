@@ -541,6 +541,7 @@ do
 
   vim.pack.add { gh 'obsidian-nvim/obsidian.nvim' }
   require('obsidian').setup {
+    legacy_commands = false, -- Disable deprecated top-level global aliases
     workspaces = {
       {
         name = 'personal',
