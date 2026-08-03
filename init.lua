@@ -921,6 +921,7 @@ do
   -- Enable the following language servers
   --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
   --  See `:help lsp-config` for information about keys and how to configure
+  --  See  ~/.local/state/nvim/lsp.log for LSP log file
   ---@type table<string, vim.lsp.Config>
   local servers = {
     -- clangd = {},
@@ -930,6 +931,51 @@ do
       cmd = { 'bash-language-server', 'start' },
       filetypes = { 'sh', 'bash', 'zsh' },
       root_markers = { '.git' },
+    },
+    cssls = {
+      cmd = { vim.fn.exepath 'vscode-json-language-server', '--stdio' },
+      filetypes = { 'css', 'scss', 'less' },
+      settings = {
+        css = {
+          validate = true,
+        },
+        scss = {
+          validate = true,
+        },
+        less = {
+          validate = true,
+        },
+      },
+    },
+    htmlls = {
+      cmd = { vim.fn.exepath 'vscode-json-language-server', '--stdio' },
+      filetypes = { 'html', 'templ' },
+      settings = {
+        html = {
+          format = {
+            enable = true,
+          },
+          suggest = {
+            html5 = true,
+          },
+        },
+      },
+    },
+    jsonls = {
+      cmd = { vim.fn.exepath 'vscode-json-language-server', '--stdio' },
+      filetypes = { 'json', 'jsonc' },
+      settings = {
+        json = {
+          -- Automatically resolve schemas (great for $schema links in opencode.json)
+          validate = { enable = true },
+          schemas = {
+            {
+              fileMatch = { 'opencode.json' },
+              url = 'https://opencode.ai/schema.json',
+            },
+          },
+        },
+      },
     },
     nil_ls = {
       cmd = { 'nil' },
@@ -1089,6 +1135,12 @@ do
     -- You can also specify external formatters in here.
     formatters_by_ft = {
       bash = { 'shfmt' },
+      css = { 'prettier' },
+      html = { 'prettier' },
+      scss = { 'prettier' },
+      less = { 'prettier' },
+      json = { 'prettier' },
+      jsonc = { 'prettier' },
       -- Conform will run the first available formatter
       javascript = { 'prettierd', 'prettier', stop_after_first = true },
       lua = { 'stylua' },
@@ -1211,7 +1263,14 @@ do
     -- Check if a parser exists and load it
     if not vim.treesitter.language.add(language) then return end
     -- Enable syntax highlighting and other treesitter features
-    vim.treesitter.start(buf, language)
+    -- vim.treesitter.start(buf, language)
+
+    local ok, err = pcall(vim.treesitter.start, buf, language)
+    if not ok then
+      vim.print('Treesitter failed to start: ' .. tostring(err))
+    else
+      -- vim.print('LSP enabled for language: ' .. language)
+    end
 
     -- Enable treesitter based folds
     -- For more info on folds see `:help folds`
@@ -1230,14 +1289,30 @@ do
   vim.api.nvim_create_autocmd('FileType', {
     callback = function(args)
       local buf, filetype = args.buf, args.match
-
+      -- vim.print('Event: ' .. vim.inspect(args))
       local language = vim.treesitter.language.get_lang(filetype)
+
       if not language then return end
+
+      --    if not language then
+      --      vim.print('Language not supported' .. language)
+      --      return
+      --    else
+      --      vim.print('Language supported' .. language .. vim.inspect(installed_parsers))
+      --    end
 
       local installed_parsers = require('nvim-treesitter').get_installed 'parsers'
 
+      --      if vim.tbl_contains(installed_parsers, language) then
+      --        vim.print('LSP supports ' .. language)
+      --      else
+      --        vim.print('LSP does not support ' .. language)
+      --        return
+      --      end
+
       if vim.tbl_contains(installed_parsers, language) then
         -- Enable the parser if it is already installed
+        -- vim.print('LSP supports ' .. language)
         treesitter_try_attach(buf, language)
       elseif vim.tbl_contains(available_parsers, language) then
         -- If a parser is available in `nvim-treesitter`, auto-install it and enable it after the installation is done
@@ -1249,6 +1324,42 @@ do
     end,
   })
 end
+
+-- Explicitly tell Neovim when and where to attach the server via autocommands
+--vim.api.nvim_create_autocmd('FileType', {
+--  pattern = { 'json', 'jsonc' },
+--  callback = function(args)
+--    -- vim.lsp.enable("jsonls")
+--    -- vim.lsp.buf_attach_client(args.buf, vim.lsp.get_clients({ name = "jsonls" })[1].id)
+--    vim.print('Event: ' .. vim.inspect(args))
+--
+--    local buf, filetype = args.buf, args.match
+--
+--    local language = vim.treesitter.language.get_lang(filetype)
+--    local installed_parsers = require('nvim-treesitter').get_installed 'parsers'
+--    if not language then
+--      vim.print('Language not supported' .. language)
+--      return
+--    else
+--      vim.print('Language supported' .. language .. vim.inspect(installed_parsers))
+--    end
+--
+--    if vim.tbl_contains(installed_parsers, language) then
+--      vim.print('LSP supports ' .. language)
+--    else
+--      vim.print('LSP does not support ' .. language)
+--      return
+--    end
+--    -- Enable syntax highlighting and other treesitter features
+--    vim.treesitter.start(buf, language)
+--    local ok, err = pcall(vim.treesitter.start, buf, language)
+--    if not ok then
+--      vim.print('Treesitter failed to start: ' .. tostring(err))
+--    else
+--      vim.print('LSP enabled for language: ' .. language)
+--    end
+--  end,
+--})
 
 -- ============================================================
 -- SECTION 10: OPTIONAL EXAMPLES / NEXT STEPS
@@ -1556,3 +1667,11 @@ vim.keymap.set('n', '<leader>df', function()
   local widgets = require 'dap.ui.widgets'
   widgets.centered_float(widgets.frames)
 end)
+
+-- renable using 's' to remove character under cursor and place in insert mode
+vim.keymap.set('n', 's', 'xi', { desc = 'Delete character and enter insert mode' })
+
+local settings = require 'my_settings'
+-- Call the public functions exposed via the returned 'M' table
+settings.setup { indent = 2 }
+-- print(vim.inspect(settings.get_info()))
