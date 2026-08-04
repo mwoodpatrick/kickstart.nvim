@@ -1536,15 +1536,104 @@ vim.pack.add { { src = gh 'lalitmee/codecompanion-spinners.nvim' } }
 -- (Standard paths under ~/.local/share/nvim/site/pack/ are loaded automatically)
 
 -- Configure CodeCompanion.nvim
+-- [CodeCompanion](https://codecompanion.olimorris.dev/getting-started)
 require('codecompanion').setup {
+  display = {
+    action_palette = {
+      width = 95,
+      height = 10,
+      prompt = 'Prompt ', -- Prompt used for interactive LLM calls
+      provider = 'snacks', -- Can be "default", "telescope", "fzf_lua", "mini_pick" or "snacks". If not specified, the plugin will autodetect installed providers.
+      opts = {
+        show_preset_actions = true, -- Show the preset actions in the action palette?
+        show_preset_prompts = true, -- Show the preset prompts in the action palette?
+        title = 'CodeCompanion actions', -- The title of the action palette
+      },
+    },
+  },
+
+  -- The plugin uses the notion of interactions to describe the many different
+  -- ways that you can interact with an Agent or LLM from within CodeCompanion.
+  -- There are five main types of interactions:
+  interactions = {
+    -- CodeCompanionChat: Converse with an LLM from within a Neovim buffer
+    chat = {
+      -- You can specify an adapter by name and model (both ACP and HTTP)
+      -- Or, just specify the adapter by name
+      -- adapter = 'ollama', -- or "anthropic", "openai", etc.
+      adapter = {
+        name = 'ollama',
+        model = 'gemma4:12b',
+      },
+    },
+
+    -- CodeCompanionCLI - A terminal wrapper around agent CLI tools
+    -- such a Claude Code or Opencode
+
+    cli = {
+      -- agent = "claude_code",
+      agent = 'opencode',
+
+      agents = {
+        claude_code = {
+          cmd = 'claude',
+          args = {},
+          description = 'Claude Code CLI',
+          provider = 'terminal',
+        },
+
+        opencode = {
+          cmd = 'opencode',
+          args = {},
+          description = 'OpenCode CLI',
+          provider = 'terminal',
+        },
+      },
+    },
+
+    -- CodeCompanion: An inline interaction that can write code directly into a buffer
+    -- Enable an LLM to write code directly into a Neovim buffer
+    inline = {
+      -- adapter = 'anthropic',
+      adapter = {
+        name = 'ollama',
+        model = 'gemma4:12b',
+      },
+    },
+
+    -- CodeCompanionCmd: Create Neovim commands in the command-line
+
+    cmd = {
+      -- adapter = 'openai',
+      adapter = {
+        name = 'ollama',
+        model = 'gemma4:12b',
+      },
+    },
+
+    -- Background - Runs tasks in the background such as compacting chat
+    -- messages or generating titles for chats
+
+    background = {
+      adapter = {
+        name = 'ollama',
+        model = 'gemma4:12b',
+        -- Possibly use something cheap for the background adapter
+        -- model = 'qwen-7b-instruct',
+      },
+    },
+  },
+
   opts = {
     log_level = 'DEBUG',
     language = 'English',
   },
-  strategies = {
+  strategiesxx = {
+    -- Converse with an LLM from within a Neovim buffer
     chat = {
       adapter = 'ollama', -- or "anthropic", "openai", etc.
     },
+    -- Enable an LLM to write code directly into a Neovim buffer
     inline = {
       adapter = 'ollama', -- or copilot
     },
