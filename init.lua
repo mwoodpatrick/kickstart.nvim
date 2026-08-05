@@ -1539,6 +1539,7 @@ vim.pack.add { { src = gh 'lalitmee/codecompanion-spinners.nvim' } }
 -- [CodeCompanion](https://codecompanion.olimorris.dev/getting-started)
 require('codecompanion').setup {
   display = {
+    -- [Action Palette](https://codecompanion.olimorris.dev/configuration/action-palette)
     action_palette = {
       width = 95,
       height = 10,
@@ -1628,16 +1629,6 @@ require('codecompanion').setup {
     log_level = 'DEBUG',
     language = 'English',
   },
-  strategiesxx = {
-    -- Converse with an LLM from within a Neovim buffer
-    chat = {
-      adapter = 'ollama', -- or "anthropic", "openai", etc.
-    },
-    -- Enable an LLM to write code directly into a Neovim buffer
-    inline = {
-      adapter = 'ollama', -- or copilot
-    },
-  },
   adapters = {
     ollama = function()
       return require('codecompanion.adapters').use('ollama', {
@@ -1717,7 +1708,7 @@ require('codecompanion').setup {
 
 -- Optional Keymaps for Quick Access
 vim.keymap.set({ 'n', 'v' }, '<leader>cc', '<cmd>CodeCompanionChat Toggle<CR>', { desc = 'Toggle CodeCompanion Chat' })
-vim.keymap.set('v', '<leader>ca', '<cmd>CodeCompanionActions<CR>', { desc = 'CodeCompanion Actions' })
+vim.keymap.set({ 'n', 'v' }, '<leader>ca', '<cmd>CodeCompanionActions<CR>', { desc = 'CodeCompanion Actions' })
 vim.keymap.set('n', '<leader>ci', '<cmd>CodeCompanion<CR>', { desc = 'CodeCompanion Inline Prompt' })
 
 -- Install the debugger plugin stack
