@@ -282,6 +282,7 @@ do
   })
 end
 
+require 'plugins'
 -- ============================================================
 -- SECTION 3: PLUGIN MANAGER INTRO
 -- vim.pack intro, build hooks
@@ -348,11 +349,8 @@ do
   })
 end
 
----Because most plugins are hosted on GitHub, you can use the helper
----function to have less repetition in the following sections.
----@param repo string
----@return string
-local function gh(repo) return 'https://github.com/' .. repo end
+local utils = require("user.utils")
+local gh = utils.gh
 
 -- ============================================================
 -- SECTION 4: UI / CORE UX PLUGINS
@@ -1039,7 +1037,6 @@ do
           },
           workspace = {
             checkThirdParty = false,
-            -- NOTE: this is a lot slower and will cause issues when working on your own configuration.
             --  See https://github.com/neovim/nvim-lspconfig/issues/3189
             library = vim.tbl_extend('force', vim.api.nvim_get_runtime_file('', true), {
               '${3rd}/luv/library',
@@ -1250,6 +1247,7 @@ do
   --
   --  See `:help nvim-treesitter-intro`
 
+  -- NOTE this is a test
   -- NOTE: You can also specify a branch or a specific commit
   vim.pack.add { { src = gh 'nvim-treesitter/nvim-treesitter', version = 'main' } }
 
@@ -1323,6 +1321,20 @@ do
       end
     end,
   })
+
+  local status_ok, configs = pcall(require, 'nvim-treesitter.configs')
+  if not status_ok then
+    vim.notify('nvim-treesitter not found in runtime path!', vim.log.levels.WARN)
+    return
+  end
+
+  configs.setup {
+    ensure_installed = parsers,
+    highlight = {
+      enable = true,
+      additional_vim_regex_highlighting = false,
+    },
+  }
 end
 
 -- Explicitly tell Neovim when and where to attach the server via autocommands
@@ -1528,188 +1540,6 @@ vim.keymap.set(
   end,
   { desc = 'Run Aider in Snacks Terminal' }
 )
-
-vim.pack.add { { src = gh 'olimorris/codecompanion.nvim' } }
-vim.pack.add { { src = gh 'lalitmee/codecompanion-spinners.nvim' } }
-
--- Ensure native package directories are registered if customized
--- (Standard paths under ~/.local/share/nvim/site/pack/ are loaded automatically)
-
--- Configure CodeCompanion.nvim
--- [CodeCompanion](https://codecompanion.olimorris.dev/getting-started)
-require('codecompanion').setup {
-  display = {
-    -- [Action Palette](https://codecompanion.olimorris.dev/configuration/action-palette)
-    action_palette = {
-      width = 95,
-      height = 10,
-      prompt = 'Prompt ', -- Prompt used for interactive LLM calls
-      provider = 'snacks', -- Can be "default", "telescope", "fzf_lua", "mini_pick" or "snacks". If not specified, the plugin will autodetect installed providers.
-      opts = {
-        show_preset_actions = true, -- Show the preset actions in the action palette?
-        show_preset_prompts = true, -- Show the preset prompts in the action palette?
-        title = 'CodeCompanion actions', -- The title of the action palette
-      },
-    },
-  },
-
-  -- The plugin uses the notion of interactions to describe the many different
-  -- ways that you can interact with an Agent or LLM from within CodeCompanion.
-  -- There are five main types of interactions:
-  interactions = {
-    -- CodeCompanionChat: Converse with an LLM from within a Neovim buffer
-    chat = {
-      -- You can specify an adapter by name and model (both ACP and HTTP)
-      -- Or, just specify the adapter by name
-      -- adapter = 'ollama', -- or "anthropic", "openai", etc.
-      adapter = {
-        name = 'ollama',
-        model = 'gemma4:12b',
-      },
-    },
-
-    -- CodeCompanionCLI - A terminal wrapper around agent CLI tools
-    -- such a Claude Code or Opencode
-
-    cli = {
-      -- agent = "claude_code",
-      agent = 'opencode',
-
-      agents = {
-        claude_code = {
-          cmd = 'claude',
-          args = {},
-          description = 'Claude Code CLI',
-          provider = 'terminal',
-        },
-
-        opencode = {
-          cmd = 'opencode',
-          args = {},
-          description = 'OpenCode CLI',
-          provider = 'terminal',
-        },
-      },
-    },
-
-    -- CodeCompanion: An inline interaction that can write code directly into a buffer
-    -- Enable an LLM to write code directly into a Neovim buffer
-    inline = {
-      -- adapter = 'anthropic',
-      adapter = {
-        name = 'ollama',
-        model = 'gemma4:12b',
-      },
-    },
-
-    -- CodeCompanionCmd: Create Neovim commands in the command-line
-
-    cmd = {
-      -- adapter = 'openai',
-      adapter = {
-        name = 'ollama',
-        model = 'gemma4:12b',
-      },
-    },
-
-    -- Background - Runs tasks in the background such as compacting chat
-    -- messages or generating titles for chats
-
-    background = {
-      adapter = {
-        name = 'ollama',
-        model = 'gemma4:12b',
-        -- Possibly use something cheap for the background adapter
-        -- model = 'qwen-7b-instruct',
-      },
-    },
-  },
-
-  opts = {
-    log_level = 'DEBUG',
-    language = 'English',
-  },
-  adapters = {
-    ollama = function()
-      return require('codecompanion.adapters').use('ollama', {
-        schema = {
-          model = {
-            default = 'gemma4', -- Adjust to your preferred local model (e.g., gemma4, llama3)
-          },
-        },
-      })
-    end,
-    openai = function()
-      return require('codecompanion.adapters').extend('openai', {
-        env = { api_key = 'YOUR_API_KEY' },
-      })
-    end,
-  },
-
-  extensions = {
-    spinner = {
-      enabled = true,
-      opts = {
-        style = 'fidget', -- Instructs the extension to use fidget.nvim
-      },
-    },
-  },
-
-  prompt_library = {
-    ['Generate Commit Message'] = {
-      strategy = 'chat',
-      description = 'Review git diff and write a conventional commit message',
-      opts = {
-        index = 10,
-        is_slash_cmd = true,
-        short_name = 'commit',
-        auto_submit = false, -- Set to true if you want it to stream immediately
-        theming = {
-          icon = 'git',
-          color = 'yellow',
-        },
-      },
-      prompts = {
-        {
-          role = 'system',
-          content = [[You are an expert software engineer. Your task is to analyze the provided git diff, review the changes for potential issues or bugs, and then generate a concise, professional conventional commit message (e.g., feat:, fix:, refactor:, chore:) with a short description followed by a detailed bulleted body if necessary.]],
-        },
-        {
-          role = 'user',
-          content = function()
-            -- Safely attempt to read staged changes
-            local handle = io.popen 'git diff --cached'
-            local result = nil
-
-            if handle then
-              result = handle:read '*a'
-              handle:close()
-            end
-
-            -- If no staged changes, try checking unstaged changes
-            if not result or result == '' then
-              local handle_unstaged = io.popen 'git diff'
-              if handle_unstaged then
-                result = handle_unstaged:read '*a'
-                handle_unstaged:close()
-              end
-            end
-
-            -- Final guard against nil or completely empty diff outputs
-            if not result or result == '' then return 'Error: No git changes detected (staged or unstaged), or not inside a valid Git repository.' end
-
-            return 'Please review these code changes and generate a commit message:\n\n```diff\n' .. result .. '\n```'
-          end,
-        },
-      },
-    },
-  },
-}
-
--- Optional Keymaps for Quick Access
-vim.keymap.set({ 'n', 'v' }, '<leader>cc', '<cmd>CodeCompanionChat Toggle<CR>', { desc = 'Toggle CodeCompanion Chat' })
-vim.keymap.set({ 'n', 'v' }, '<leader>ca', '<cmd>CodeCompanionActions<CR>', { desc = 'CodeCompanion Actions' })
-vim.keymap.set('n', '<leader>ci', '<cmd>CodeCompanion<CR>', { desc = 'CodeCompanion Inline Prompt' })
 
 -- Install the debugger plugin stack
 -- [DAP (Debug Adapter Protocol)](https://github.com/mfussenegger/nvim-dap)
