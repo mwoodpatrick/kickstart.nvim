@@ -16,6 +16,7 @@ local plugin_modules = {
   'plugins.opencode',
   'plugins.codecompanion',
   'plugins.example',
+  'plugins.dap',
 }
 
 function M.setup()
