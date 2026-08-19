@@ -11,6 +11,7 @@ local plugin_modules = {
   'plugins.treesitter',
   'plugins.lsp',
   'plugins.formatting',
+  'plugins.opencode',
   'plugins.codecompanion',
   'plugins.example',
 }
