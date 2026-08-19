@@ -6,8 +6,9 @@ local M = {}
 local plugin_modules = {
   -- "plugins.treesitter",
   'plugins.tree',
-  'plugins.codecompanion',
+  'plugins.search',
   'plugins.treesitter',
+  'plugins.codecompanion',
   'plugins.example',
 }
 
