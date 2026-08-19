@@ -779,22 +779,6 @@ require('vim._core.ui2').enable {
   transparency = true,
 }
 
-vim.keymap.set(
-  'n',
-  '<leader>ta',
-  function()
-    Snacks.terminal('aider --model ollama_chat/gemma4', {
-      win = {
-        style = 'float',
-        border = 'rounded',
-        width = 0.85,
-        height = 0.85,
-      },
-    })
-  end,
-  { desc = 'Run Aider in Snacks Terminal' }
-)
-
 -- renable using 's' to remove character under cursor and place in insert mode
 vim.keymap.set('n', 's', 'xi', { desc = 'Delete character and enter insert mode' })
 

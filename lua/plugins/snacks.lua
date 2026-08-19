@@ -54,4 +54,20 @@ return function()
 
   -- View notification history
   map('n', '<leader>n', function() Snacks.notifier.show_history() end, { desc = 'Notification History' })
+
+  vim.keymap.set(
+    'n',
+    '<leader>ta',
+    function()
+      Snacks.terminal('aider --model ollama_chat/gemma4', {
+        win = {
+          style = 'float',
+          border = 'rounded',
+          width = 0.85,
+          height = 0.85,
+        },
+      })
+    end,
+    { desc = 'Run Aider in Snacks Terminal' }
+  )
 end
