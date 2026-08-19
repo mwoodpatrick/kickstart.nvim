@@ -637,16 +637,6 @@ end, {})
 -- Bind it to a keymap for quick access (e.g., <leader>la)
 vim.keymap.set('n', '<leader>hb', '<cmd>CreateHistoryBuffer<CR>', { desc = 'Show history buffer' })
 
-require('vim._core.ui2').enable {
-  enable = true,
-  msg = {
-    targets = 'cmd', -- Route messages through the modernized command area
-    pager = {
-      height = 1, -- Configure pager behavior for long outputs
-    },
-  },
-  transparency = true,
-}
 
 -- renable using 's' to remove character under cursor and place in insert mode
 vim.keymap.set('n', 's', 'xi', { desc = 'Delete character and enter insert mode' })
