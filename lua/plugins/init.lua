@@ -8,6 +8,7 @@ local plugin_modules = {
   'plugins.tree',
   'plugins.search',
   'plugins.treesitter',
+  'plugins.lsp',
   'plugins.codecompanion',
   'plugins.example',
 }
