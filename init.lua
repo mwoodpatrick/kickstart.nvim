@@ -417,23 +417,6 @@ do
   -- [fugitive.vim](https://github.com/tpope/vim-fugitive#fugitivevim)
   vim.pack.add { gh 'tpope/vim-fugitive' }
 
-  -- https://github.com/MeanderingProgrammer/render-markdown.nvim/wiki
-  vim.pack.add { gh 'MeanderingProgrammer/render-markdown.nvim' }
-  require('render-markdown').setup {
-    file_types = { 'markdown', 'Avante' },
-    code = {
-      sign = false,
-      width = 'full',
-      position = 'right',
-    },
-    checkbox = {
-      enabled = true,
-    },
-  }
-
-  -- Markdown-preview relies on a global function mapping or autocmd if native
-  local opts = { buffer = 0 }
-
   -- Useful plugin to show you pending keybinds.
   vim.pack.add { gh 'folke/which-key.nvim' }
   require('which-key').setup {
