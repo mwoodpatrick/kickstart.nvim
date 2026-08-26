@@ -8,7 +8,8 @@ return function()
     workspaces = {
       {
         name = 'personal',
-        path = '~/obsidian/vaults/personal', -- Adjust to your local vault path
+        -- FIXME: adjust to your local vault path
+        path = '~/obsidian/vaults/personal',
       },
     },
     -- Optional: mappings, note ID formatting, etc.

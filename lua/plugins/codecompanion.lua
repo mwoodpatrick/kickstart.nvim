@@ -25,24 +25,28 @@ return function()
 
         strategies = {
           chat = {
+            -- FIXME: hard-coded Ollama model; adjust per project/machine
             adapter = {
               name = 'ollama',
               model = 'gemma4:12b',
             },
           },
           inline = {
+            -- FIXME: hard-coded Ollama model; adjust per project/machine
             adapter = {
               name = 'ollama',
               model = 'gemma4:12b',
             },
           },
           cmd = {
+            -- FIXME: hard-coded Ollama model; adjust per project/machine
             adapter = {
               name = 'ollama',
               model = 'gemma4:12b',
             },
           },
           agent = {
+            -- FIXME: hard-coded Ollama model; adjust per project/machine
             adapter = {
               name = 'ollama',
               model = 'gemma4:12b',
@@ -83,6 +87,7 @@ return function()
         },
 
         background = {
+          -- FIXME: hard-coded Ollama model; adjust per project/machine
           adapter = {
             name = 'ollama',
             model = 'gemma4:12b',
@@ -94,14 +99,10 @@ return function()
             return require('codecompanion.adapters').use('ollama', {
               schema = {
                 model = {
+                  -- FIXME: hard-coded default Ollama model
                   default = 'gemma4',
                 },
               },
-            })
-          end,
-          openai = function()
-            return require('codecompanion.adapters').extend('openai', {
-              env = { api_key = 'YOUR_API_KEY' },
             })
           end,
         },

@@ -36,6 +36,10 @@ return function()
     },
   }
 
+  -- Route Neovim notifications through snacks' notifier.
+  -- This must be set up after snacks.setup() has initialized the notifier module.
+  vim.notify = Snacks.notifier
+
   -- ==========================================
   -- Optional Keymaps for Snacks Modules
   -- ==========================================
@@ -55,6 +59,7 @@ return function()
   -- View notification history
   map('n', '<leader>n', function() Snacks.notifier.show_history() end, { desc = 'Notification History' })
 
+  -- FIXME: hard-coded Aider model and path; adjust per project/machine
   vim.keymap.set(
     'n',
     '<leader>ta',

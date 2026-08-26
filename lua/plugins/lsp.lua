@@ -44,12 +44,6 @@ return function()
     },
   }
 
-  -- Explicitly route vim.notify to fidget
-  -- minimalist corner updates and dislike floating boxes popping up over your code.
-  -- vim.notify = require('fidget').notify
-  -- provides a rich notification history log, visually distinct toast messages
-  vim.notify = require('snacks').notifier
-
   --  This function gets run when an LSP attaches to a particular buffer.
   --    That is to say, every time a new file is opened that is associated with
   --    an lsp (for example, opening `main.rs` is associated with `rust_analyzer`) this
@@ -133,7 +127,7 @@ return function()
       root_markers = { '.git' },
     },
     cssls = {
-      cmd = { vim.fn.exepath 'vscode-json-language-server', '--stdio' },
+      cmd = { vim.fn.exepath 'vscode-css-language-server', '--stdio' },
       filetypes = { 'css', 'scss', 'less' },
       settings = {
         css = {
@@ -148,7 +142,7 @@ return function()
       },
     },
     htmlls = {
-      cmd = { vim.fn.exepath 'vscode-json-language-server', '--stdio' },
+      cmd = { vim.fn.exepath 'vscode-html-language-server', '--stdio' },
       filetypes = { 'html', 'templ' },
       settings = {
         html = {
@@ -260,19 +254,16 @@ return function()
     gh 'neovim/nvim-lspconfig',
   }
 
-  if is_nixos then
-  -- packages should be installed by nix on NixOS
-  -- vim.notify("Running on NixOS", vim.log.levels.INFO)
-  else
+  -- On non-NixOS systems, use Mason to install LSPs and tools automatically.
+  -- On NixOS these should be provided by the system package manager.
+  if not is_nixos then
     vim.pack.add {
       gh 'mason-org/mason.nvim',
       gh 'mason-org/mason-lspconfig.nvim',
       gh 'WhoIsSethDaniel/mason-tool-installer.nvim',
     }
     -- Automatically install LSPs and related tools to stdpath for Neovim
-    require('mason').setup {
-      -- vim.notify("Running on NixOS", vim.log.levels.INFO)
-    }
+    require('mason').setup {}
   end
 
   -- Ensure the servers and tools above are installed
@@ -287,10 +278,7 @@ return function()
     -- You can add other tools here that you want Mason to install
   })
 
-  if is_nixos then
-  -- packages should be installed by nix on NixOS
-  -- vim.notify("Running on NixOS", vim.log.levels.INFO)
-  else
+  if not is_nixos then
     require('mason-tool-installer').setup { ensure_installed = ensure_installed }
   end
 

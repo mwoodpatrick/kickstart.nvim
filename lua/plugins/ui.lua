@@ -1,4 +1,7 @@
 return function()
+  -- WARNING: `vim._core.ui2` is an experimental/private Neovim API (underscore
+  -- prefix = internal). It may break or disappear in future Neovim versions.
+  -- If you experience UI errors on startup, comment out or remove this block.
   require('vim._core.ui2').enable {
     enable = true,
     msg = {
@@ -34,8 +37,6 @@ return function()
       border = 'rounded',
     })
 
-    -- Bind to a convenient keymap (e.g., <leader>r)
-    vim.keymap.set('n', '<leader>r', open_ranger, { desc = 'Open Ranger File Manager' })
     -- Start job/terminal natively via jobstart instead of bare termopen
     --
     vim.fn.jobstart('ranger', {
@@ -48,6 +49,10 @@ return function()
     -- Enter terminal mode automatically
     vim.cmd 'startinsert'
   end
+
+  -- Bind to a convenient keymap (e.g., <leader>r)
+  vim.keymap.set('n', '<leader>r', open_ranger, { desc = 'Open Ranger File Manager' })
+
   -- Fetch recent command-line history items programmatically
   vim.api.nvim_create_user_command('CreateHistoryBuffer', function()
     local history_items = {}

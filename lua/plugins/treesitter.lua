@@ -87,18 +87,8 @@ return function()
       end,
     })
 
-    local status_ok, configs = pcall(require, 'nvim-treesitter.configs')
-    if not status_ok then
-      vim.notify('nvim-treesitter not found in runtime path!', vim.log.levels.WARN)
-      return
-    end
-
-    configs.setup {
-      ensure_installed = parsers,
-      highlight = {
-        enable = true,
-        additional_vim_regex_highlighting = false,
-      },
-    }
+    -- The new nvim-treesitter API handles installation, highlighting, and
+    -- indentation via the FileType autocommand above. The legacy
+    -- nvim-treesitter.configs.setup() module is no longer used.
   end
 end

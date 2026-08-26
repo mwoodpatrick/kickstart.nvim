@@ -4,7 +4,6 @@
 local M = {}
 
 local plugin_modules = {
-  -- "plugins.treesitter",
   'plugins.ui',
   'plugins.tree',
   'plugins.snacks',
@@ -23,12 +22,13 @@ local plugin_modules = {
 
 function M.setup()
   for _, mod in ipairs(plugin_modules) do
-    local ok, config_fn = pcall(require, mod)
-    if ok and type(config_fn) == 'function' then
-      config_fn()
-      -- vim.print('loading plugin ' .. mod .. ' complete')
+    local ok, result = pcall(require, mod)
+    if ok and type(result) == 'function' then
+      result()
+    elseif ok then
+      vim.print('loading plugin ' .. mod .. ' skipped: module did not return a function')
     else
-      vim.print('loading plugin ' .. mod .. ' failed')
+      vim.print('loading plugin ' .. mod .. ' failed: ' .. tostring(result))
     end
   end
 end
