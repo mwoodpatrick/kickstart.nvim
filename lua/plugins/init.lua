@@ -18,6 +18,7 @@ local plugin_modules = {
   'plugins.codecompanion',
   'plugins.example',
   'plugins.dap',
+  'plugins.lean'
 }
 
 function M.setup()
