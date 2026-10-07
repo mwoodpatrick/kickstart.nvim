@@ -24,6 +24,18 @@ vim.g.have_nerd_font = false
 -- Enable True Color inside Neovim
 vim.opt.termguicolors = true
 
+-- It can be hard to see the contents of floating windows (such as those shown when hitting 
+-- K to hover over something) without window borders. 
+-- You can set the winborder option globally to add them
+
+vim.o.winborder = 'rounded'
+
+-- By default, Neovim only updates diagnostics once you leave insert mode. 
+-- Since Lean's elaboration runs as you type, you will likely want them updated continuously:
+-- See :h vim.diagnostic.config for the full list of options.
+
+vim.diagnostic.config{ update_in_insert = true }
+
 -- Make line numbers default
 vim.o.number = true
 -- You can also add relative line numbers, to help with jumping.
