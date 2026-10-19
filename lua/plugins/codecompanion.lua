@@ -24,34 +24,48 @@ return function()
         },
 
         strategies = {
+          -- TODO: reduce duplication
+          -- chat = { adapter = 'ollama' },
+          -- inline = { adapter = 'ollama' },
+
           chat = {
             -- FIXME: hard-coded Ollama model; adjust per project/machine
             adapter = {
               name = 'ollama',
-              model = 'gemma4:12b',
+              -- was gemma4:12b
+              model = 'gpt-oss:120b-cloud',
             },
           },
           inline = {
             -- FIXME: hard-coded Ollama model; adjust per project/machine
             adapter = {
               name = 'ollama',
-              model = 'gemma4:12b',
+              -- was gemma4:12b
+              model = 'gpt-oss:120b-cloud',
             },
           },
           cmd = {
             -- FIXME: hard-coded Ollama model; adjust per project/machine
             adapter = {
               name = 'ollama',
-              model = 'gemma4:12b',
+              -- was gemma4:12b
+              model = 'gpt-oss:120b-cloud',
             },
           },
           agent = {
             -- FIXME: hard-coded Ollama model; adjust per project/machine
             adapter = {
               name = 'ollama',
-              model = 'gemma4:12b',
+              -- was gemma4:12b
+              model = 'gpt-oss:120b-cloud',
             },
           },
+        },
+
+        keys = {
+          { '<leader>ac', '<cmd>CodeCompanionChat Toggle<cr>', desc = 'Toggle Chat' },
+          { '<leader>ai', '<cmd>CodeCompanion<cr>', mode = { 'n', 'v' }, desc = 'Inline Edit' },
+          { '<leader>aa', '<cmd>CodeCompanionActions<cr>', mode = { 'n', 'v' }, desc = 'Actions' },
         },
 
         display = {
@@ -96,15 +110,29 @@ return function()
 
         adapters = {
           ollama = function()
-            return require('codecompanion.adapters').use('ollama', {
+            return require('codecompanion.adapters').extend('ollama', {
+              env = {
+                url = 'http://127.0.0.1:11434',
+              },
               schema = {
                 model = {
-                  -- FIXME: hard-coded default Ollama model
-                  default = 'gemma4',
+                  default = 'gpt-oss:120b-cloud',
                 },
               },
             })
           end,
+
+          --           ollama = function()
+          --             return require('codecompanion.adapters').use('ollama', {
+          --               schema = {
+          --                 model = {
+          --                   -- FIXME: hard-coded default Ollama model
+          --                   -- was gemma4
+          --                   default = 'gpt-oss:120b-cloud',
+          --                 },
+          --               },
+          --             })
+          --           end,
         },
 
         extensions = {
