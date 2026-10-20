@@ -1,3 +1,4 @@
+-- Integrates with OpenCode the open source agent
 -- [opencode.nvim](https://github.com/nickjvandyke/opencode.nvim#opencodenvim)
 
 return function()

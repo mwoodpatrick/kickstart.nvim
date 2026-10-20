@@ -1,5 +1,6 @@
 -- ============================================================
 -- FORMATTING
+-- Lightweight yet powerful formatter plugin for Neovim
 -- [conform.nvim](https://github.com/stevearc/conform.nvim) setup and keymap
 -- ============================================================
 

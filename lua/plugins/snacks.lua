@@ -1,8 +1,9 @@
+-- A collection of small QoL plugins for Neovim
+-- [snacks.nvim](https://github.com/folke/snacks.nvim/tree/main#-snacksnvim)
 return function()
   local utils = require 'user.utils'
   local gh = utils.gh
 
-  -- [snacks.nvim](https://github.com/folke/snacks.nvim/tree/main#-snacksnvim)
   vim.pack.add { gh 'folke/snacks.nvim' }
   -- ==========================================
   -- Snacks.nvim Native Configuration

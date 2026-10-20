@@ -1,4 +1,5 @@
--- https://github.com/Julian/lean.nvim
+-- Support for the Lean Theorem Prover
+-- [lean.nvim](https://github.com/Julian/lean.nvim)
 
 return function()
   local utils = require 'user.utils'

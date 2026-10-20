@@ -1,4 +1,5 @@
--- https://github.com/MeanderingProgrammer/render-markdown.nvim/wiki
+-- improve viewing Markdown files in Neovim
+-- [render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim/wiki)
 
 return function()
   local utils = require 'user.utils'

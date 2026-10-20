@@ -1,6 +1,8 @@
 -- ============================================================
 -- AUTOCOMPLETE & SNIPPETS
--- blink.cmp and luasnip setup
+-- completion plugin with support for LSPs, cmdline, signature help, and snippets.
+-- [blink.cmp](https://github.com/Saghen/blink.cmp)
+-- [LuaSnip](https://github.com/L3MON4D3/LuaSnip)
 -- ============================================================
 
 return function()

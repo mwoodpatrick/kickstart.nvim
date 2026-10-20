@@ -1,6 +1,7 @@
 -- ============================================================
 -- SECTION 9: TREESITTER
 -- Parser installation, syntax highlighting, folds, indentation
+-- [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter)
 -- ============================================================
 return function()
   local utils = require 'user.utils'

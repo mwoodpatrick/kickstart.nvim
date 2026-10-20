@@ -1,6 +1,7 @@
 -- ============================================================
 -- SECTION 6: LSP
 -- LSP keymaps, server configuration, Mason tools installations
+-- [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig)
 -- ============================================================
 return function()
   local utils = require 'user.utils'

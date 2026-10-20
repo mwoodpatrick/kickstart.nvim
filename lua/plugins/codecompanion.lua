@@ -1,3 +1,5 @@
+-- AI coding assistant for coding with LLMs
+--[codecompanion.nvim](https://github.com/olimorris/codecompanion.nvim)
 return function()
   local utils = require 'user.utils'
   local gh = utils.gh

@@ -1,7 +1,9 @@
+--  [UI2](https://neovim.io/doc/user/lua/#_ui2)
+--  control how the cmdline, messages, and pager work
+-- WARNING: `vim._core.ui2` is an experimental/private Neovim API (underscore
+-- prefix = internal). It may break or disappear in future Neovim versions.
+-- If you experience UI errors on startup, comment out or remove this block.
 return function()
-  -- WARNING: `vim._core.ui2` is an experimental/private Neovim API (underscore
-  -- prefix = internal). It may break or disappear in future Neovim versions.
-  -- If you experience UI errors on startup, comment out or remove this block.
   require('vim._core.ui2').enable {
     enable = true,
     msg = {

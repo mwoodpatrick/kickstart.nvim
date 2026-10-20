@@ -1,3 +1,5 @@
+-- Edit Obsidian files
+-- [obsidian.nvim](https://github.com/obsidian-nvim/obsidian.nvim)
 return function()
   local utils = require 'user.utils'
   local gh = utils.gh

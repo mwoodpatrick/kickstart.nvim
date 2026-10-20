@@ -1,6 +1,8 @@
 -- ============================================================
 -- SEARCH & NAVIGATION
--- Telescope setup, keymaps, LSP picker mappings
+-- Fuzzy finder over lists. Telescope setup, keymaps, LSP picker mappings
+-- [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim)
+-- [telescope-ui-select.nvim](https://github.com/nvim-telescope/telescope-ui-select.nvim)
 -- ============================================================
 
 return function()
