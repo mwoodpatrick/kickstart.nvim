@@ -2,7 +2,7 @@
 --[codecompanion.nvim](https://github.com/olimorris/codecompanion.nvim)
 
 local function env_or_default(key, fallback)
-  local v = vim.env(key)
+  local v = vim.env[key]
   return v ~= nil and v ~= '' and v or fallback
 end
 
@@ -63,12 +63,21 @@ return function()
           language = 'English',
         },
         interactions = {
-          chat = { adapter = vim.tbl_extend('force', DEFAULT_ADAPTOR, {})},
-          inline = { adapter =  vim.tbl_extend('force', DEFAULT_ADAPTOR, {})},
-          cmd = { adapter = vim.tbl_extend('force', DEFAULT_ADAPTOR, {})  },
-          agent = { adapter = vim.tbl_extend('force', DEFAULT_ADAPTOR, {})},
+          chat = { adapter = vim.tbl_extend('force', DEFAULT_ADAPTOR, {}) },
+          inline = { adapter = vim.tbl_extend('force', DEFAULT_ADAPTOR, {}) },
+          cmd = { adapter = vim.tbl_extend('force', DEFAULT_ADAPTOR, {}) },
+          agent = { adapter = vim.tbl_extend('force', DEFAULT_ADAPTOR, {}) },
         },
         display = {
+          -- control how inline edits and code modifications are rendered 
+          -- and presented inside your buffer.
+          diff = {
+            enabled = true,
+            provider = 'default',
+          },
+          -- the Action Palette is the central interactive menu that lets you 
+          -- run context-aware commands, apply suggestions, manipulate code 
+          -- blocks, and trigger prompt actions across your buffers.
           action_palette = {
             width = math.floor(vim.o.columns * 0.8),
             height = 10,
