@@ -1,13 +1,17 @@
 -- AI coding assistant for coding with LLMs
 --[codecompanion.nvim](https://github.com/olimorris/codecompanion.nvim)
 
+local function env_or_default(key, fallback)
+  local v = vim.env(key)
+  return v ~= nil and v ~= '' and v or fallback
+end
+
 return function()
   local utils = require 'user.utils'
   local gh = utils.gh
-  local debug = 0
-  local DEFAULT_URL = os.getenv 'CODECOMPANION_URL' or 'http://127.0.0.1:11434'
-  local DEFAULT_PROVIDER = os.getenv 'CODECOMPANION_PROVIDER' or 'ollama' -- can be overridden via env var
-  local DEFAULT_MODEL = os.getenv 'CODECOMPANION_MODEL' or 'gpt-oss:120b-cloud' -- can be overridden via env var
+  local DEFAULT_URL = env_or_default('CODECOMPANION_URL', 'http://127.0.0.1:11434')
+  local DEFAULT_PROVIDER = env_or_default('CODECOMPANION_PROVIDER', 'ollama')
+  local DEFAULT_MODEL = env_or_default('CODECOMPANION_MODEL', 'gpt-oss:120b-cloud')
   local DEFAULT_ADAPTOR = { name = DEFAULT_PROVIDER, model = DEFAULT_MODEL }
 
   local function run_command(cmd)
@@ -17,7 +21,7 @@ return function()
       local errmsg = string.format('Command failed (code %d). Stderr: %s', result.code, result.stderr)
       vim.fn.confirm(errmsg, '&Continue')
       vim.notify(errmsg, vim.log.levels.WARN)
-      return nil
+      return result.stdout or result.stderr
     end
 
     local output = vim.trim(result.stdout)
@@ -55,18 +59,18 @@ return function()
 
       codecompanion.setup {
         opts = {
-          log_level = 'DEBUG',
+          log_level = env_or_default('CODECOMPANION_LOG', 'INFO'),
           language = 'English',
         },
         interactions = {
-          chat = { adapter = DEFAULT_ADAPTOR },
-          inline = { adapter = DEFAULT_ADAPTOR },
-          cmd = { adapter = DEFAULT_ADAPTOR },
-          agent = { adapter = DEFAULT_ADAPTOR },
+          chat = { adapter = vim.tbl_extend('force', DEFAULT_ADAPTOR, {})},
+          inline = { adapter =  vim.tbl_extend('force', DEFAULT_ADAPTOR, {})},
+          cmd = { adapter = vim.tbl_extend('force', DEFAULT_ADAPTOR, {})  },
+          agent = { adapter = vim.tbl_extend('force', DEFAULT_ADAPTOR, {})},
         },
         display = {
           action_palette = {
-            width = 95,
+            width = math.floor(vim.o.columns * 0.8),
             height = 10,
             prompt = 'Prompt ',
             provider = 'snacks',
@@ -85,7 +89,7 @@ return function()
           },
         },
         background = {
-          adapter = DEFAULT_ADAPTOR,
+          adapter = vim.deepcopy(DEFAULT_ADAPTOR),
         },
         adapters = {
           ollama = function()
@@ -127,8 +131,6 @@ return function()
                 -- A system prompt sets how the LLM behaves before it sees your first message.
                 -- [Configuring System Prompts](https://codecompanion.olimorris.dev/configuration/system-prompt)
                 role = 'system',
-                content_old = [[You are an expert software engineer. Your task is to analyze the provided git diff, review the changes for potential issues or bugs, and then generate a concise, professional conventional commit message (e.g., feat:, fix:, refactor:, chore:) with a short description followed by a detailed bulleted body if necessary.]],
-
                 content = [[
               You are **CodeCompanion**, an expert software engineer inside Neovim.  
               Your task:
@@ -169,8 +171,8 @@ return function()
                   if not result then return 'Error: Unable to obtain git diff, error: ' end
 
                   -- Truncate very large diffs (prevent token overflow)
-                  local MAX = 2048
-                  if #result > MAX then result = result:sub(1, MAX) .. '\n...truncated...' end
+                  local MAX_DIFF = tonumber(vim.g.codecompanion_max_diff_len)
+                  if #result > MAX_DIFF then result = result:sub(1, MAX_DIFF) .. '\n...truncated...' end
 
                   return string.format('Please review these code changes and generate a commit message:\n\n```diff\n%s\n```', result)
                 end,
@@ -193,5 +195,9 @@ return function()
   vim.keymap.set({ 'n', 'v' }, '<leader>ca', '<cmd>CodeCompanionActions<CR>', { desc = 'CodeCompanion Actions' })
   vim.keymap.set('n', '<leader>ci', '<cmd>CodeCompanion<CR>', { desc = 'CodeCompanion Inline Prompt' })
 
-  --mvim.keymap.set('n', '<leader>gc', generate_commit_message, { desc = 'Generate Conventional Commit' })
+  vim.g.codecompanion_url = vim.g.codecompanion_url or DEFAULT_URL
+  vim.g.codecompanion_provider = vim.g.codecompanion_provider or DEFAULT_PROVIDER
+  vim.g.codecompanion_model = vim.g.codecompanion_model or DEFAULT_MODEL
+  vim.g.codecompanion_max_diff_len = 4096
+  -- vim.keymap.set('n', '<leader>gc', generate_commit_message, { desc = 'Generate Conventional Commit' })
 end
