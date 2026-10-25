@@ -27,20 +27,26 @@ return function()
     'https://github.com/milanglacier/minuet-ai.nvim',
   }
 
+  -- [LuaSnip Config-Options](https://github.com/L3MON4D3/LuaSnip/blob/master/DOC.md#config-options)
   require('luasnip').setup {
     history = true,
     delete_check_events = 'TextChanged',
+    update_events = 'TextChanged,InsertLeave',
   }
 
   -- Load the friendly-snippets collection into LuaSnip
   require('luasnip.loaders.from_vscode').lazy_load()
 
+  -- AI-powered code completion
+  -- [minuet-ai.nvim](https://github.com/milanglacier/minuet-ai.nvim)
+  -- [Configuration](https://github.com/milanglacier/minuet-ai.nvim#configuration)
   require('minuet').setup {
-    -- Silences Minuet's warning advising against running as an 
+    -- Silences Minuet's warning advising against running as an
     -- in-process LSP when a completion engine is detected
     warn_on_blink_or_cmp = false,
     -- format requests using standard OpenAI /v1/chat/completions payloads.
     provider = 'openai_compatible',
+
     provider_options = {
       openai_compatible = {
         model = 'qwen2.5-coder:7b',
@@ -111,8 +117,13 @@ return function()
         minuet = {
           name = 'minuet',
           module = 'minuet.blink',
-          score_offset = 8, -- higher than LSP (0) so it appears first, Boosts priority so AI suggestions rank near the top
           async = true, -- don't wait for Minuet before showing LSP results
+          -- Should match minuet.config.request_timeout * 1000,
+          -- since minuet.config.request_timeout (default 3) is in seconds
+          timeout_ms = 3000,
+          -- Gives minuet higher priority among suggestions,
+          -- higher than LSP (0) so it appears first, Boosts priority so AI suggestions rank near the top
+          score_offset = 50,
         },
       },
     },
