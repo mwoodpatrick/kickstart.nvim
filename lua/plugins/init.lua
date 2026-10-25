@@ -11,11 +11,11 @@ local plugin_modules = {
   'plugins.treesitter', -- Parser installation, syntax highlighting, folds, indentation
   'plugins.lsp', -- LSP keymaps, server configuration, Mason tools installations
   'plugins.formatting', -- Lightweight yet powerful formatter plugin for Neovim
+  -- 'plugins.minuet-ai', -- AI-powered code completion
   'plugins.completions', -- completion plugin with support for LSPs, cmdline, signature help, and snippets.
   'plugins.markdown', -- improve viewing Markdown files in Neovim
   'plugins.obsidian', -- Edit Obsidian files
   'plugins.opencode', -- Integrates with OpenCode the open source agent
-  'plugins.minuet-ai', -- AI-powered code completion
   'plugins.codecompanion', -- AI coding assistant for coding with LLMs
   'plugins.example', -- An example plugin
   'plugins.dap', -- Install the debugger plugin stack
