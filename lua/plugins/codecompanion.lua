@@ -2,8 +2,8 @@
 --[codecompanion.nvim](https://github.com/olimorris/codecompanion.nvim)
 
 local function env_or_default(key, fallback)
-  local v = vim.env[key]
-  return v ~= nil and v ~= '' and v or fallback
+  local v = vim.fn.getenv(key)
+  return v ~= vim.NIL and v ~= '' and v or fallback
 end
 
 return function()
@@ -14,35 +14,46 @@ return function()
   local DEFAULT_MODEL = env_or_default('CODECOMPANION_MODEL', 'gpt-oss:120b-cloud')
   local DEFAULT_ADAPTOR = { name = DEFAULT_PROVIDER, model = DEFAULT_MODEL }
 
+  vim.g.codecompanion_url = vim.g.codecompanion_url or DEFAULT_URL
+  vim.g.codecompanion_provider = vim.g.codecompanion_provider or DEFAULT_PROVIDER
+  vim.g.codecompanion_model = vim.g.codecompanion_model or DEFAULT_MODEL
+  vim.g.codecompanion_max_diff_len = 4096
+
   local function run_command(cmd)
     local result = vim.system({ 'sh', '-c', cmd }, { text = true }):wait()
 
     if result.code ~= 0 then
       local errmsg = string.format('Command failed (code %d). Stderr: %s', result.code, result.stderr)
       vim.fn.confirm(errmsg, '&Continue')
-      vim.notify(errmsg, vim.log.levels.WARN)
-      return result.stdout or result.stderr
+      vim.notify(errmsg, vim.log.levels.WARN, { title = 'CodeCompanion' })
+      return nil, errmsg
     end
-
-    local output = vim.trim(result.stdout)
-    -- Successfully read and exited with code 0
-    -- vim.fn.confirm('Debug breakpoint reached read completed\n', '&Continue')
-    return output
+    return vim.trim(result.stdout)
   end
 
   local function get_git_output(args)
-    local cmd = 'git ' .. args
-    return run_command(cmd)
+    return run_command('git ' .. args) -- returns (output, err)
   end
   -- -----------------------------------------------------------------
   -- Autocommand: load native packages *once* after UI is ready
   -- -----------------------------------------------------------------
   local aug = vim.api.nvim_create_augroup('CodeCompanionBoot', { clear = true })
+
+  vim.api.nvim_create_autocmd('WinResized', {
+    group = vim.api.nvim_create_augroup('CodeCompanionResize', { clear = true }),
+    callback = function()
+      local width = math.floor(vim.o.columns * 0.8)
+      -- Re‑apply the width – the plugin reads it from its config on each open
+      vim.g.codecompanion_palette_width = width
+    end,
+  })
+
   vim.api.nvim_create_autocmd('VimEnter', {
     group = aug,
     once = true,
     callback = function()
       -- add native packages (guard against nil repo)
+      -- Package stored in $XDG_DATA_HOME/nvim/site/pack/core/opt/codecompanion.nvim
       local ok, repo = pcall(gh, 'olimorris/codecompanion.nvim')
       if ok and repo then vim.pack.add { { src = repo } } end
 
@@ -63,20 +74,20 @@ return function()
           language = 'English',
         },
         interactions = {
-          chat = { adapter = vim.tbl_extend('force', DEFAULT_ADAPTOR, {}) },
-          inline = { adapter = vim.tbl_extend('force', DEFAULT_ADAPTOR, {}) },
-          cmd = { adapter = vim.tbl_extend('force', DEFAULT_ADAPTOR, {}) },
-          agent = { adapter = vim.tbl_extend('force', DEFAULT_ADAPTOR, {}) },
+          chat = { adapter = DEFAULT_ADAPTOR },
+          inline = { adapter = DEFAULT_ADAPTOR },
+          cmd = { adapter = DEFAULT_ADAPTOR },
+          agent = { adapter = DEFAULT_ADAPTOR },
         },
         display = {
-          -- control how inline edits and code modifications are rendered 
+          -- control how inline edits and code modifications are rendered
           -- and presented inside your buffer.
           diff = {
             enabled = true,
             provider = 'default',
           },
-          -- the Action Palette is the central interactive menu that lets you 
-          -- run context-aware commands, apply suggestions, manipulate code 
+          -- the Action Palette is the central interactive menu that lets you
+          -- run context-aware commands, apply suggestions, manipulate code
           -- blocks, and trigger prompt actions across your buffers.
           action_palette = {
             width = math.floor(vim.o.columns * 0.8),
@@ -176,14 +187,18 @@ return function()
               {
                 role = 'user',
                 content = function()
-                  local result = get_git_output 'diff --cached' or get_git_output 'diff'
-                  if not result then return 'Error: Unable to obtain git diff, error: ' end
+                  local diff, err = get_git_output 'diff --cached'
+                  if not diff or diff == '' then
+                    diff, err = get_git_output 'diff'
+                  end
+                  if not diff or diff == '' then return ('Error: Unable to obtain git diff – %s'):format(err or 'unknown') end
 
                   -- Truncate very large diffs (prevent token overflow)
-                  local MAX_DIFF = tonumber(vim.g.codecompanion_max_diff_len)
-                  if #result > MAX_DIFF then result = result:sub(1, MAX_DIFF) .. '\n...truncated...' end
 
-                  return string.format('Please review these code changes and generate a commit message:\n\n```diff\n%s\n```', result)
+                  local max_len = tonumber(vim.g.codecompanion_max_diff_len) or 4096
+                  if #diff > max_len then diff = diff:sub(1, max_len) .. '\n...truncated...' end
+
+                  return string.format('Please review these code changes and generate a commit message:\n\n```diff\n%s\n```', diff)
                 end,
               },
             },
@@ -203,10 +218,4 @@ return function()
   vim.keymap.set({ 'n', 'v' }, '<leader>cc', '<cmd>CodeCompanionChat Toggle<CR>', { desc = 'Toggle CodeCompanion Chat' })
   vim.keymap.set({ 'n', 'v' }, '<leader>ca', '<cmd>CodeCompanionActions<CR>', { desc = 'CodeCompanion Actions' })
   vim.keymap.set('n', '<leader>ci', '<cmd>CodeCompanion<CR>', { desc = 'CodeCompanion Inline Prompt' })
-
-  vim.g.codecompanion_url = vim.g.codecompanion_url or DEFAULT_URL
-  vim.g.codecompanion_provider = vim.g.codecompanion_provider or DEFAULT_PROVIDER
-  vim.g.codecompanion_model = vim.g.codecompanion_model or DEFAULT_MODEL
-  vim.g.codecompanion_max_diff_len = 4096
-  -- vim.keymap.set('n', '<leader>gc', generate_commit_message, { desc = 'Generate Conventional Commit' })
 end
