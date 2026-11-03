@@ -28,25 +28,26 @@ return function()
       vim.notify(errmsg, vim.log.levels.WARN, { title = 'CodeCompanion' })
       return nil, errmsg
     end
-    return vim.trim(result.stdout)
+    return result.stdout, nil
   end
 
   local function get_git_output(args)
     return run_command('git ' .. args) -- returns (output, err)
   end
+  local resize_grp = vim.api.nvim_create_augroup('CodeCompanionResize', { clear = true })
+
+  vim.api.nvim_create_autocmd('WinResized', {
+    group = resize_grp,
+    callback = function()
+      local width = math.floor(vim.o.columns * 0.8)
+      vim.g.codecompanion_palette_width = width
+    end,
+  })
+
   -- -----------------------------------------------------------------
   -- Autocommand: load native packages *once* after UI is ready
   -- -----------------------------------------------------------------
   local aug = vim.api.nvim_create_augroup('CodeCompanionBoot', { clear = true })
-
-  vim.api.nvim_create_autocmd('WinResized', {
-    group = vim.api.nvim_create_augroup('CodeCompanionResize', { clear = true }),
-    callback = function()
-      local width = math.floor(vim.o.columns * 0.8)
-      -- Re‑apply the width – the plugin reads it from its config on each open
-      vim.g.codecompanion_palette_width = width
-    end,
-  })
 
   vim.api.nvim_create_autocmd('VimEnter', {
     group = aug,
