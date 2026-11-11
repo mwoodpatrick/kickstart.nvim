@@ -45,6 +45,9 @@ return function()
     },
   }
 
+  -- Basic completion capabilities (e.g., nvim-cmp or blink.cmp)
+  local capabilities = vim.lsp.protocol.make_client_capabilities()
+
   --  This function gets run when an LSP attaches to a particular buffer.
   --    That is to say, every time a new file is opened that is associated with
   --    an lsp (for example, opening `main.rs` is associated with `rust_analyzer`) this
@@ -119,12 +122,24 @@ return function()
   --  See  ~/.local/state/nvim/lsp.log for LSP log file
   ---@type table<string, vim.lsp.Config>
   local servers = {
-    -- clangd = {},
-    -- gopls = {},
     --  https://github.com/bash-lsp/bash-language-server
     bashls = {
       cmd = { 'bash-language-server', 'start' },
       filetypes = { 'sh', 'bash', 'zsh' },
+      root_markers = { '.git' },
+    },
+    clangd = {
+      capabilities = capabilities,
+      cmd = {
+        'clangd',
+        '--background-index',
+        '--clang-tidy',
+        '--header-insertion=iwyu',
+        '--completion-style=detailed',
+        '--function-arg-placeholders',
+        '--fallback-style=llvm',
+      },
+      filetypes = { 'c', 'cpp', 'objc', 'objcpp' },
       root_markers = { '.git' },
     },
     cssls = {
@@ -279,9 +294,7 @@ return function()
     -- You can add other tools here that you want Mason to install
   })
 
-  if not is_nixos then
-    require('mason-tool-installer').setup { ensure_installed = ensure_installed }
-  end
+  if not is_nixos then require('mason-tool-installer').setup { ensure_installed = ensure_installed } end
 
   for name, server in pairs(servers) do
     vim.lsp.config(name, server)
