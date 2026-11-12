@@ -187,13 +187,27 @@ return function()
         },
       },
     },
-    nil_ls = {
-      cmd = { 'nil' },
-      filetypes = { 'nix' },
+    ts_ls = {
+      cmd = { 'typescript-language-server', '--stdio' },
+      filetypes = {
+        'javascript',
+        'javascriptreact',
+        'typescript',
+        'typescriptreact',
+      },
+      root_markers = { 'tsconfig.json', 'jsconfig.json', 'package.json', '.git' },
       settings = {
-        ['nil'] = {
-          formatting = {
-            command = { 'nixfmt' },
+        typescript = {
+          inlayHints = {
+            includeInlayParameterNameHints = 'all',
+            includeInlayFunctionParameterTypeHints = true,
+            includeInlayVariableTypeHints = true,
+          },
+        },
+        javascript = {
+          inlayHints = {
+            includeInlayParameterNameHints = 'all',
+            includeInlayFunctionParameterTypeHints = true,
           },
         },
       },
@@ -208,7 +222,7 @@ return function()
             expr = 'import (builtins.getFlake(toString ./.)).inputs.nixpkgs { }',
           },
           formatting = {
-            command = { 'alejandra' }, -- or "nixfmt"
+            command = { 'nixfmt' }, -- or "alejandra"
           },
           options = {
             nixos = {
